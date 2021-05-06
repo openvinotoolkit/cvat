@@ -66,6 +66,9 @@ export interface TasksQuery {
 
 export interface Task {
     instance: any; // cvat-core instance
+    currentJobsPage: number;
+    // appliedJobsFilters: any;
+    // appliedJobsSortings: any;
     preview: string;
 }
 

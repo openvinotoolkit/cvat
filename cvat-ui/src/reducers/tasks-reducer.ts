@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -60,6 +60,7 @@ export default (state: TasksState = defaultState, action: AnyAction): TasksState
                 (task: any, index: number): Task => ({
                     instance: task,
                     preview: action.payload.previews[index],
+                    currentJobsPage: 1,
                 }),
             );
 
@@ -72,6 +73,15 @@ export default (state: TasksState = defaultState, action: AnyAction): TasksState
                 gettingQuery: { ...action.payload.query },
             };
         }
+
+        case TasksActionTypes.UPDATE_CURRENT_JOBS_PAGE: {
+            return {
+                ...state,
+                current: state.current.map((current, i) =>
+                    (i === 0 ? { ...current, currentJobsPage: action.payload.pageNumber } : current)),
+            };
+        }
+
         case TasksActionTypes.GET_TASKS_FAILED:
             return {
                 ...state,

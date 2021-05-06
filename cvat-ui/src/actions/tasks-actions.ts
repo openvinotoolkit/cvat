@@ -35,6 +35,7 @@ export enum TasksActionTypes {
     UPDATE_TASK_SUCCESS = 'UPDATE_TASK_SUCCESS',
     UPDATE_TASK_FAILED = 'UPDATE_TASK_FAILED',
     HIDE_EMPTY_TASKS = 'HIDE_EMPTY_TASKS',
+    UPDATE_CURRENT_JOBS_PAGE = 'UPDATE_CURRENT_JOBS_PAGE',
 }
 
 function getTasks(): AnyAction {
@@ -54,6 +55,18 @@ export function getTasksSuccess(array: any[], previews: string[], count: number,
             array,
             count,
             query,
+        },
+    };
+
+    return action;
+}
+
+export function updateCurrentJobsPage(taskID: number, pageNumber: number): AnyAction {
+    const action = {
+        type: TasksActionTypes.UPDATE_CURRENT_JOBS_PAGE,
+        payload: {
+            taskID,
+            pageNumber,
         },
     };
 
