@@ -1,0 +1,241 @@
+{
+  "main": {
+    "name": "main task",
+    "overlap": 0,
+    "segment_size": 100,
+    "owner_id": 1,
+    "assignee_id": 2,
+    "labels": [
+      {
+        "name": "car",
+        "color": "#2080c0",
+        "attributes": [
+          {
+            "name": "select_name",
+            "mutable": false,
+            "input_type": "select",
+            "default_value": "bmw",
+            "values": ["bmw", "mazda", "renault"]
+          },
+          {
+            "name": "radio_name",
+            "mutable": false,
+            "input_type": "radio",
+            "default_value": "x1",
+            "values": ["x1", "x2", "x3"]
+          },
+          {
+            "name": "check_name",
+            "mutable": true,
+            "input_type": "checkbox",
+            "default_value": "false",
+            "values": ["false"]
+          },
+          {
+            "name": "text_name",
+            "mutable": false,
+            "input_type": "text",
+            "default_value": "qwerty",
+            "values": ["qwerty"]
+          },
+          {
+            "name": "number_name",
+            "mutable": false,
+            "input_type": "number",
+            "default_value": "-4",
+            "values": ["-4", "4", "1"]
+          }
+        ]
+      },
+      {
+        "name": "person",
+        "color": "#c06060",
+        "attributes": []
+      }
+    ]
+  },
+  "icdar_localization_and_recognition": {
+    "name": "icdar localization/recogntion task",
+    "overlap": 0,
+    "segment_size": 100,
+    "owner_id": 1,
+    "assignee_id": 2,
+    "labels": [
+      {
+        "name": "icdar",
+        "attributes": [
+          {
+            "name": "text",
+            "mutable": false,
+            "input_type": "text",
+            "values": ["word_1", "word_2", "word_3"]
+          }
+        ]
+      }
+    ]
+  },
+  "icdar_segmentation": {
+    "name": "icdar segmentation task",
+    "overlap": 0,
+    "segment_size": 100,
+    "owner_id": 1,
+    "assignee_id": 2,
+    "labels": [
+      {
+        "name": "icdar",
+        "attributes": [
+          {
+            "name": "text",
+            "mutable": false,
+            "input_type": "text",
+            "values": ["word_1", "word_2", "word_3"]
+          },
+          {
+            "name": "index",
+            "mutable": false,
+            "input_type": "number",
+            "values": ["0", "1", "2"]
+          },
+          {
+            "name": "color",
+            "mutable": false,
+            "input_type": "text",
+            "values": ["100 110 240", "10 15 20", "120 128 64"]
+          },
+          {
+            "name": "center",
+            "mutable": false,
+            "input_type": "text",
+            "values": ["1 2", "2 4", "10 45"]
+          }
+        ]
+      }
+    ]
+  },
+  "market1501": {
+    "name": "market1501 task",
+    "overlap": 0,
+    "segment_size": 100,
+    "owner_id": 1,
+    "assignee_id": 2,
+    "labels": [
+      {
+        "name": "market-1501",
+        "attributes": [
+          {
+            "name": "query",
+            "mutable": false,
+            "input_type": "select",
+            "values": ["True", "False"]
+          },
+          {
+            "name": "camera_id",
+            "mutable": false,
+            "input_type": "number",
+            "values": ["1", "2", "3", "4", "5", "6"]
+          },
+          {
+            "name": "person_id",
+            "mutable": false,
+            "input_type": "number",
+            "values": ["1", "2", "3"]
+          }
+        ]
+      }
+    ]
+  },
+  "wrong_checkbox_value": {
+    "name": "wrong checkbox value task",
+    "overlap": 0,
+    "segment_size": 100,
+    "owner_id": 1,
+    "assignee_id": 2,
+    "labels": [
+      {
+        "name": "car",
+        "color": "#2080c0",
+        "attributes": [
+          {
+            "name": "select_name",
+            "mutable": false,
+            "input_type": "select",
+            "default_value": "bmw",
+            "values": ["bmw", "mazda", "renault"]
+          },
+          {
+            "name": "radio_name",
+            "mutable": false,
+            "input_type": "radio",
+            "default_value": "x1",
+            "values": ["x1", "x2", "x3"]
+          },
+          {
+            "name": "check_name",
+            "mutable": true,
+            "input_type": "checkbox",
+            "default_value": "false",
+            "values": ["false"]
+          },
+          {
+            "name": "text_name",
+            "mutable": false,
+            "input_type": "text",
+            "default_value": "qwerty",
+            "values": ["qwerty"]
+          },
+          {
+            "name": "number_name",
+            "mutable": false,
+            "input_type": "number",
+            "default_value": "-4",
+            "values": ["-4", "4", "1"]
+          }
+        ]
+      },
+      {
+        "name": "person",
+        "color": "#c06060",
+        "attributes": []
+      }
+    ]
+  },
+  "no attributes": {
+    "name": "no attributes",
+    "overlap": 0,
+    "segment_size": 100,
+    "owner_id": 1,
+    "labels": [
+      {
+        "name": "car",
+        "color": "#2080c0",
+        "attributes": []
+      }
+    ]
+  },
+  "many jobs": {
+    "name": "many jobs",
+    "overlap": 0,
+    "segment_size": 5,
+    "owner_id": 1,
+    "labels": [
+      {
+        "name": "car",
+        "color": "#2080c0",
+        "attributes": []
+      }
+    ]
+  },
+  "change overlap and segment size": {
+    "name": "change overlap and segment size",
+    "overlap": 3,
+    "segment_size": 6,
+    "owner_id": 1,
+    "labels": [
+      {
+        "name": "car",
+        "color": "#2080c0",
+        "attributes": []
+      }
+    ]
+  }
+}

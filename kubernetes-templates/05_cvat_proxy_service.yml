@@ -9,8 +9,8 @@ metadata:
 spec:
   type: NodePort
   selector:
-      app: cvat-app
-      tier: proxy
+    app: cvat-app
+    tier: proxy
   ports:
     - port: 80
       targetPort: 80

@@ -1,0 +1,946 @@
+{
+  "CVAT for images 1.1": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [5.54, 3.5, 19.64, 11.19],
+        "frame": 0,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": true,
+        "z_order": 0,
+        "points": [25.04, 13.7, 35.85, 20.2, 16.65, 19.8],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polyline",
+        "occluded": false,
+        "z_order": 1,
+        "points": [27.15, 26.7, 53.25, 24.8],
+        "frame": 0,
+        "label_id": null,
+        "group": 2,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "points",
+        "occluded": false,
+        "z_order": 1,
+        "points": [42.95, 33.59],
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "cuboid",
+        "occluded": false,
+        "z_order": 2,
+        "points": [
+          51.65,
+          37.3,
+          51.65,
+          46.8,
+          70.25,
+          37.2,
+          70.25,
+          46.8,
+          72.11,
+          36.34,
+          72.11,
+          45.74,
+          53.51,
+          36.34,
+          53.51,
+          45.74
+        ],
+        "frame": 0,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "CVAT for video 1.1": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [],
+    "tracks": [
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": true,
+            "z_order": 0,
+            "points": [4.75, 4.8, 13.06, 11.39],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "polygon",
+            "occluded": false,
+            "z_order": 0,
+            "points": [24.62, 13.01, 34.88, 20.03, 18.14, 18.08],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "polyline",
+            "occluded": false,
+            "z_order": 1,
+            "points": [30.99, 31.37, 47.51, 26.94, 50.21, 22.73],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "points",
+            "occluded": false,
+            "z_order": 2,
+            "points": [59.82, 31.26],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 2,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "cuboid",
+            "occluded": false,
+            "z_order": 2,
+            "points": [
+              52.48,
+              37.95,
+              52.48,
+              44.43,
+              67.38,
+              37.85,
+              67.38,
+              44.43,
+              68.87,
+              37.29,
+              68.87,
+              43.67,
+              53.97,
+              37.29,
+              53.97,
+              43.67
+            ],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [65.65, 7.07, 78.83, 16.14],
+            "frame": 0,
+            "outside": false,
+            "attributes": []
+          },
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [65.65, 7.07, 78.83, 16.14],
+            "frame": 1,
+            "outside": true,
+            "attributes": []
+          },
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [65.65, 7.073, 78.83, 16.14],
+            "frame": 2,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      }
+    ]
+  },
+  "CamVid 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "polygon",
+        "occluded": false,
+        "z_order": 0,
+        "points": [83.0, 228.5, 69.5, 228.0, 69.0, 183.5, 164.5, 223.0, 164.0, 224.5, 83.0, 228.5],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "COCO 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": true,
+        "z_order": 0,
+        "points": [7.29, 8.58, 18.45, 19.22],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": false,
+        "z_order": 0,
+        "points": [27.03, 26.07, 63.94, 37.87, 18.34, 34.97],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "ICDAR Localization 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [10.0, 8.79, 20.5, 15.69],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": false,
+        "z_order": 0,
+        "points": [35.0, 22.5, 53.32, 30.63, 22.34, 29.45, 47.43, 38.21],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "ICDAR Recognition 1.0": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [],
+    "tracks": []
+  },
+  "ICDAR Segmentation 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [10.0, 12.1, 25.6, 21.9],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": false,
+        "z_order": 0,
+        "points": [35.0, 22.5, 53.32, 30.63, 22.34, 29.45],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "ImageNet 1.0": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [],
+    "tracks": []
+  },
+  "LabelMe 3.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [10.0, 8.79, 20.5, 15.69],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": false,
+        "z_order": 0,
+        "points": [35.0, 22.5, 53.32, 30.63, 22.34, 29.45],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "Market-1501 1.0": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [],
+    "tracks": []
+  },
+  "MOT 1.1": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [9.4, 12.09, 17.2, 18.19],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [10.5, 27.29, 23.3, 33.49],
+            "frame": 0,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      }
+    ]
+  },
+  "MOTS PNG 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [],
+    "tracks": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "polygon",
+            "occluded": false,
+            "z_order": 0,
+            "points": [19.4, 19.2, 41.7, 22.0, 38.8, 29.5, 21.5, 29.3],
+            "frame": 0,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      }
+    ]
+  },
+  "PASCAL VOC 1.1": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": true,
+        "z_order": 0,
+        "points": [9.4, 12.09, 17.2, 18.19],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "Segmentation mask 1.1": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "polygon",
+        "occluded": false,
+        "z_order": 0,
+        "points": [11.9, 21.5, 35.2, 21.9, 33.6, 31.9, 12.4, 30.47],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "TFRecord 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [16.5, 17.2, 38.89, 25.63],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "YOLO 1.1": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [8.3, 9.1, 19.2, 14.8],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "WiderFace 1.0": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [7.55, 9.75, 16.44, 15.85],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "rectangle",
+        "occluded": true,
+        "z_order": 0,
+        "points": [3.55, 27.75, 11.33, 33.71],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "VGGFace2 1.0": {
+    "version": 0,
+    "tags": [],
+    "shapes": [
+      {
+        "type": "points",
+        "occluded": false,
+        "z_order": 0,
+        "points": [28.05, 18.0, 36.65, 17.7, 36.85, 23.7, 26.95, 23.2, 30.35, 28.9],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [57.15, 20.9, 74.25, 32.0],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "Datumaro 1.0": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [5.54, 3.5, 19.64, 11.19],
+        "frame": 0,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": true,
+        "z_order": 0,
+        "points": [25.04, 13.7, 35.85, 20.2, 16.65, 19.8],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polyline",
+        "occluded": false,
+        "z_order": 1,
+        "points": [27.15, 26.7, 53.25, 24.8],
+        "frame": 0,
+        "label_id": null,
+        "group": 2,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "points",
+        "occluded": false,
+        "z_order": 1,
+        "points": [42.95, 33.59],
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "cuboid",
+        "occluded": false,
+        "z_order": 2,
+        "points": [
+          51.65,
+          37.3,
+          51.65,
+          46.8,
+          70.25,
+          37.2,
+          70.25,
+          46.8,
+          72.11,
+          36.34,
+          72.11,
+          45.74,
+          53.51,
+          36.34,
+          53.51,
+          45.74
+        ],
+        "frame": 0,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "CVAT for images 1.1 many jobs": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "frame": 8,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [5.54, 3.5, 19.64, 11.19],
+        "frame": 0,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "polygon",
+        "occluded": true,
+        "z_order": 0,
+        "points": [25.04, 13.7, 35.85, 20.2, 16.65, 19.8],
+        "frame": 11,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": []
+  },
+  "CVAT for video 1.1 many jobs": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 1,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "frame": 8,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [],
+    "tracks": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": true,
+            "z_order": 0,
+            "points": [4.75, 4.8, 13.06, 11.39],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 10,
+        "label_id": null,
+        "group": 1,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "polygon",
+            "occluded": false,
+            "z_order": 0,
+            "points": [24.62, 13.01, 34.88, 20.03, 18.14, 18.08],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      }
+    ]
+  },
+  "CVAT for video 1.1 slice track": {
+    "version": 0,
+    "tags": [],
+    "shapes": [],
+    "tracks": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [66.45, 147.08, 182.16, 204.56],
+            "frame": 0,
+            "outside": true,
+            "attributes": []
+          },
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [66.45, 147.08, 182.16, 204.56],
+            "frame": 1,
+            "outside": false,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      }
+    ]
+  },
+  "CVAT for images 1.1 merge": {
+    "version": 0,
+    "tags": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "shapes": [
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [9.95, 8.09, 18.65, 13.39],
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      },
+      {
+        "type": "rectangle",
+        "occluded": false,
+        "z_order": 0,
+        "points": [11.545, 11.7, 19.44, 17.4],
+        "frame": 3,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "attributes": []
+      }
+    ],
+    "tracks": [
+      {
+        "frame": 0,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [4.54, 19.59, 21.34, 26.89],
+            "frame": 0,
+            "outside": false,
+            "attributes": []
+          },
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [4.54, 19.59, 21.34, 26.89],
+            "frame": 6,
+            "outside": true,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      },
+      {
+        "frame": 3,
+        "label_id": null,
+        "group": 0,
+        "source": "manual",
+        "shapes": [
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [9.65, 23.59, 22.65, 29.79],
+            "frame": 3,
+            "outside": false,
+            "attributes": []
+          },
+          {
+            "type": "rectangle",
+            "occluded": false,
+            "z_order": 0,
+            "points": [9.65, 23.59, 22.65, 29.79],
+            "frame": 9,
+            "outside": true,
+            "attributes": []
+          }
+        ],
+        "attributes": []
+      }
+    ]
+  }
+}

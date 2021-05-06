@@ -9,8 +9,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-      app: cvat-app
-      tier: db
+    app: cvat-app
+    tier: db
   ports:
     - port: 5432
       targetPort: 5432

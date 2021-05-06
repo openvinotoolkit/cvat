@@ -9,8 +9,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-      app: cvat-app
-      tier: backend
+    app: cvat-app
+    tier: backend
   ports:
     - port: 8080
       targetPort: 8080

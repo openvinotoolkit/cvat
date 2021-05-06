@@ -29,65 +29,65 @@ spec:
               cpu: 10m
               memory: 100Mi
           env:
-          - name: DJANGO_MODWSGI_EXTRA_ARGS
-            value: ""
-          - name: UI_PORT
-            value: "80"
-          - name: UI_HOST
-            value: "cvat-frontend-service"
-          - name: ALLOWED_HOSTS
-            value: "*"
-          - name: CVAT_REDIS_HOST
-            value: "cvat-redis-service"
-          - name: CVAT_POSTGRES_HOST
-            value: "cvat-postgres-service"
-          - name: CVAT_POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: cvat-postgres-secret
-                key: POSTGRES_USER
-          - name: CVAT_POSTGRES_DBNAME
-            valueFrom:
-              secretKeyRef:
-                name: cvat-postgres-secret
-                key: POSTGRES_DB
-          - name: CVAT_POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: cvat-postgres-secret
-                key: POSTGRES_PASSWORD
+            - name: DJANGO_MODWSGI_EXTRA_ARGS
+              value: ''
+            - name: UI_PORT
+              value: '80'
+            - name: UI_HOST
+              value: 'cvat-frontend-service'
+            - name: ALLOWED_HOSTS
+              value: '*'
+            - name: CVAT_REDIS_HOST
+              value: 'cvat-redis-service'
+            - name: CVAT_POSTGRES_HOST
+              value: 'cvat-postgres-service'
+            - name: CVAT_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cvat-postgres-secret
+                  key: POSTGRES_USER
+            - name: CVAT_POSTGRES_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: cvat-postgres-secret
+                  key: POSTGRES_DB
+            - name: CVAT_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cvat-postgres-secret
+                  key: POSTGRES_PASSWORD
           ports:
-          - containerPort: 8080
+            - containerPort: 8080
           volumeMounts:
-          - mountPath: /home/django/data
-            name: cvat-backend-data
-            subPath: data
-          - mountPath: /home/django/keys
-            name: cvat-backend-data
-            subPath: keys
-          - mountPath: /home/django/logs
-            name: cvat-backend-data
-            subPath: logs
-          - mountPath: /home/django/models
-            name: cvat-backend-data
-            subPath: models
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
       initContainers:
         - name: user-data-permission-fix
           image: busybox
-          command: ["/bin/chmod", "-R", "777", "/home/django"]
+          command: ['/bin/chmod', '-R', '777', '/home/django']
           volumeMounts:
-          - mountPath: /home/django/data
-            name: cvat-backend-data
-            subPath: data
-          - mountPath: /home/django/keys
-            name: cvat-backend-data
-            subPath: keys
-          - mountPath: /home/django/logs
-            name: cvat-backend-data
-            subPath: logs
-          - mountPath: /home/django/models
-            name: cvat-backend-data
-            subPath: models
+            - mountPath: /home/django/data
+              name: cvat-backend-data
+              subPath: data
+            - mountPath: /home/django/keys
+              name: cvat-backend-data
+              subPath: keys
+            - mountPath: /home/django/logs
+              name: cvat-backend-data
+              subPath: logs
+            - mountPath: /home/django/models
+              name: cvat-backend-data
+              subPath: models
       volumes:
         - name: cvat-backend-data
           persistentVolumeClaim:
