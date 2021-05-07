@@ -1,0 +1,134 @@
+metadata:
+  name: pth.facebookresearch.detectron2.retinanet_r101
+  namespace: cvat
+  annotations:
+    name: RetinaNet R101
+    type: detector
+    framework: pytorch
+    spec: |
+      [
+        { "id": 1, "name": "person" },
+        { "id": 2, "name": "bicycle" },
+        { "id": 3, "name": "car" },
+        { "id": 4, "name": "motorcycle" },
+        { "id": 5, "name": "airplane" },
+        { "id": 6, "name": "bus" },
+        { "id": 7, "name": "train" },
+        { "id": 8, "name": "truck" },
+        { "id": 9, "name": "boat" },
+        { "id":10, "name": "traffic_light" },
+        { "id":11, "name": "fire_hydrant" },
+        { "id":13, "name": "stop_sign" },
+        { "id":14, "name": "parking_meter" },
+        { "id":15, "name": "bench" },
+        { "id":16, "name": "bird" },
+        { "id":17, "name": "cat" },
+        { "id":18, "name": "dog" },
+        { "id":19, "name": "horse" },
+        { "id":20, "name": "sheep" },
+        { "id":21, "name": "cow" },
+        { "id":22, "name": "elephant" },
+        { "id":23, "name": "bear" },
+        { "id":24, "name": "zebra" },
+        { "id":25, "name": "giraffe" },
+        { "id":27, "name": "backpack" },
+        { "id":28, "name": "umbrella" },
+        { "id":31, "name": "handbag" },
+        { "id":32, "name": "tie" },
+        { "id":33, "name": "suitcase" },
+        { "id":34, "name": "frisbee" },
+        { "id":35, "name": "skis" },
+        { "id":36, "name": "snowboard" },
+        { "id":37, "name": "sports_ball" },
+        { "id":38, "name": "kite" },
+        { "id":39, "name": "baseball_bat" },
+        { "id":40, "name": "baseball_glove" },
+        { "id":41, "name": "skateboard" },
+        { "id":42, "name": "surfboard" },
+        { "id":43, "name": "tennis_racket" },
+        { "id":44, "name": "bottle" },
+        { "id":46, "name": "wine_glass" },
+        { "id":47, "name": "cup" },
+        { "id":48, "name": "fork" },
+        { "id":49, "name": "knife" },
+        { "id":50, "name": "spoon" },
+        { "id":51, "name": "bowl" },
+        { "id":52, "name": "banana" },
+        { "id":53, "name": "apple" },
+        { "id":54, "name": "sandwich" },
+        { "id":55, "name": "orange" },
+        { "id":56, "name": "broccoli" },
+        { "id":57, "name": "carrot" },
+        { "id":58, "name": "hot_dog" },
+        { "id":59, "name": "pizza" },
+        { "id":60, "name": "donut" },
+        { "id":61, "name": "cake" },
+        { "id":62, "name": "chair" },
+        { "id":63, "name": "couch" },
+        { "id":64, "name": "potted_plant" },
+        { "id":65, "name": "bed" },
+        { "id":67, "name": "dining_table" },
+        { "id":70, "name": "toilet" },
+        { "id":72, "name": "tv" },
+        { "id":73, "name": "laptop" },
+        { "id":74, "name": "mouse" },
+        { "id":75, "name": "remote" },
+        { "id":76, "name": "keyboard" },
+        { "id":77, "name": "cell_phone" },
+        { "id":78, "name": "microwave" },
+        { "id":79, "name": "oven" },
+        { "id":80, "name": "toaster" },
+        { "id":81, "name": "sink" },
+        { "id":83, "name": "refrigerator" },
+        { "id":84, "name": "book" },
+        { "id":85, "name": "clock" },
+        { "id":86, "name": "vase" },
+        { "id":87, "name": "scissors" },
+        { "id":88, "name": "teddy_bear" },
+        { "id":89, "name": "hair_drier" },
+        { "id":90, "name": "toothbrush" }
+      ]
+
+spec:
+  description: RetinaNet R101 from Detectron2
+  runtime: 'python:3.8'
+  handler: main:handler
+  eventTimeout: 30s
+
+  build:
+    image: cvat/pth.facebookresearch.detectron2.retinanet_r101
+    baseImage: ubuntu:20.04
+
+    directives:
+      preCopy:
+        - kind: ENV
+          value: DEBIAN_FRONTEND=noninteractive
+        - kind: RUN
+          value: apt-get update && apt-get -y install curl git python3 python3-pip
+        - kind: WORKDIR
+          value: /opt/nuclio
+        - kind: RUN
+          value: pip3 install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+        - kind: RUN
+          value: git clone https://github.com/facebookresearch/detectron2
+        - kind: RUN
+          value: pip3 install -e detectron2
+        - kind: RUN
+          value: curl -O https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/retinanet_R_101_FPN_3x/190397697/model_final_971ab9.pkl
+        - kind: RUN
+          value: ln -s /usr/bin/pip3 /usr/local/bin/pip
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 10000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
+      mountMode: volume
