@@ -9,20 +9,15 @@ import { Canvas3d as Canvas } from 'cvat-canvas3d-wrapper';
 import CursorControl from './cursor-control';
 import MoveControl from './move-control';
 import DrawCuboidControl from './draw-cuboid-control';
-import PhotoContextControl from './photo-context';
 
 interface Props {
     canvasInstance: Canvas;
     activeControl: ActiveControl;
     normalizedKeyMap: Record<string, string>;
-    contextImageHide: boolean;
-    hideShowContextImage: (hidden: boolean) => void;
 }
 
 export default function ControlsSideBarComponent(props: Props): JSX.Element {
-    const {
-        canvasInstance, activeControl, normalizedKeyMap, contextImageHide, hideShowContextImage,
-    } = props;
+    const { canvasInstance, activeControl, normalizedKeyMap } = props;
 
     return (
         <Layout.Sider className='cvat-canvas-controls-sidebar' theme='light' width={44}>
@@ -36,12 +31,6 @@ export default function ControlsSideBarComponent(props: Props): JSX.Element {
             <DrawCuboidControl
                 canvasInstance={canvasInstance}
                 isDrawing={activeControl === ActiveControl.DRAW_CUBOID}
-            />
-            <PhotoContextControl
-                canvasInstance={canvasInstance}
-                activeControl={activeControl}
-                contextImageHide={contextImageHide}
-                hideShowContextImage={hideShowContextImage}
             />
         </Layout.Sider>
     );

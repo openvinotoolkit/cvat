@@ -34,7 +34,6 @@ context('Canvas 3D functionality. Control button. Mouse interaction.', () => {
 
     before(() => {
         cy.openTaskJob(taskName);
-        cy.get('.cvat-contextImage-show').should('be.visible');
     });
 
     describe(`Testing case "${caseId}"`, () => {

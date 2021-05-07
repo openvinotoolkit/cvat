@@ -42,7 +42,7 @@ from cvat.apps.dataset_manager.serializers import DatasetFormatsSerializer
 from cvat.apps.engine.frame_provider import FrameProvider
 from cvat.apps.engine.models import (
     Job, StatusChoice, Task, Project, Review, Issue,
-    Comment, StorageMethodChoice, ReviewStatus, StorageChoice, DimensionType, Image
+    Comment, StorageMethodChoice, ReviewStatus, StorageChoice, Image
 )
 from cvat.apps.engine.serializers import (
     AboutSerializer, AnnotationFileSerializer, BasicUserSerializer,
@@ -487,21 +487,17 @@ class TaskViewSet(auth.TaskGetQuerySetMixin, viewsets.ModelViewSet):
                     return sendfile(request, frame_provider.get_preview())
 
                 elif data_type == 'context_image':
-                    if db_task.dimension == DimensionType.DIM_3D:
-                        data_id = int(data_id)
-                        image = Image.objects.get(data_id=db_task.data_id, frame=data_id)
-                        for i in image.related_files.all():
-                            path = os.path.realpath(str(i.path))
-                            image = cv2.imread(path)
-                            success, result = cv2.imencode('.JPEG', image)
-                            if not success:
-                                raise Exception("Failed to encode image to '%s' format" % (".jpeg"))
-                            return HttpResponse(io.BytesIO(result.tobytes()), content_type="image/jpeg")
-                        return Response(data='No context image related to the frame',
-                                        status=status.HTTP_404_NOT_FOUND)
-                    else:
-                        return Response(data='Only 3D tasks support context images',
-                                        status=status.HTTP_400_BAD_REQUEST)
+                    data_id = int(data_id)
+                    image = Image.objects.get(data_id=db_data.id, frame=data_id)
+                    for i in image.related_files.all():
+                        path = os.path.realpath(str(i.path))
+                        image = cv2.imread(path)
+                        success, result = cv2.imencode('.JPEG', image)
+                        if not success:
+                            raise Exception('Failed to encode image to ".jpeg" format')
+                        return HttpResponse(io.BytesIO(result.tobytes()), content_type='image/jpeg')
+                    return Response(data='No context image related to the frame',
+                                    status=status.HTTP_404_NOT_FOUND)
                 else:
                     return Response(data='unknown data type {}.'.format(data_type), status=status.HTTP_400_BAD_REQUEST)
             except APIException as e:
@@ -636,7 +632,7 @@ class TaskViewSet(auth.TaskGetQuerySetMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'], serializer_class=DataMetaSerializer,
         url_path='data/meta')
     def data_info(request, pk):
-        db_task = models.Task.objects.prefetch_related('data__images').select_related('data__video').get(pk=pk)
+        db_task = models.Task.objects.prefetch_related('data__images__related_files').select_related('data__video').get(pk=pk)
 
         if hasattr(db_task.data, 'video'):
             media = [db_task.data.video]
@@ -647,6 +643,7 @@ class TaskViewSet(auth.TaskGetQuerySetMixin, viewsets.ModelViewSet):
             'width': item.width,
             'height': item.height,
             'name': item.path,
+            'has_related_context': hasattr(item, 'related_files') and bool(len(item.related_files.all()))
         } for item in media]
 
         db_data = db_task.data

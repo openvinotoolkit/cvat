@@ -145,8 +145,9 @@ class VideoStreamReader:
 
 
 class DatasetImagesReader:
-    def __init__(self, sources, is_sorted=True, use_image_hash=False, *args, **kwargs):
+    def __init__(self, sources, meta=None, is_sorted=True, use_image_hash=False, *args, **kwargs):
         self._sources = sources if is_sorted else sorted(sources)
+        self._meta = meta
         self._content = []
         self._data_dir = kwargs.get('data_dir', None)
         self._use_image_hash = use_image_hash
@@ -163,6 +164,8 @@ class DatasetImagesReader:
                 'width': img.width,
                 'height': img.height,
             }
+            if self._meta and img_name in self._meta:
+                image_properties['meta'] = self._meta[img_name]
             if self._use_image_hash:
                 image_properties['checksum'] = md5_hash(img)
             yield image_properties
@@ -177,7 +180,7 @@ class DatasetImagesReader:
 
 class _Manifest:
     FILE_NAME = 'manifest.jsonl'
-    VERSION = '1.0'
+    VERSION = '1.1'
 
     def __init__(self, path, is_created=False):
         assert path, 'A path to manifest file not found'

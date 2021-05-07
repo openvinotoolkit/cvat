@@ -19,6 +19,7 @@ from cvat.apps.engine.utils import av_scan_paths
 from cvat.apps.engine.models import DimensionType
 from utils.dataset_manifest import ImageManifestManager, VideoManifestManager
 from utils.dataset_manifest.core import VideoManifestValidator
+from utils.dataset_manifest.utils import detect_related_images
 
 import django_rq
 from django.conf import settings
@@ -273,9 +274,13 @@ def _create_thread(tid, data):
                 start=db_data.start_frame,
                 stop=data['stop_frame'],
                 dimension=DimensionType.DIM_3D,
-
             )
             extractor.add_files(validate_dimension.converted_files)
+
+    related_images = {}
+    if isinstance(extractor, MEDIA_TYPES['image']['extractor']):
+        extractor.filter(lambda x: 'related_images{}'.format(os.sep) not in x)
+        related_images = detect_related_images(extractor.absolute_source_paths, upload_dir)
 
     db_task.mode = task_mode
     db_data.compressed_chunk_type = models.DataChoice.VIDEO if task_mode == 'interpolation' and not data['use_zip_chunks'] else models.DataChoice.IMAGESET
@@ -394,13 +399,14 @@ def _create_thread(tid, data):
                     base_msg = str(ex) if isinstance(ex, AssertionError) \
                         else "Uploaded video does not support a quick way of task creating."
                     _update_status("{} The task will be created using the old method".format(base_msg))
-            else:# images, archive, pdf
+            else: # images, archive, pdf
                 db_data.size = len(extractor)
                 manifest = ImageManifestManager(db_data.get_manifest_path())
                 if not manifest_file:
                     if db_task.dimension == DimensionType.DIM_2D:
                         meta_info = manifest.prepare_meta(
                             sources=extractor.absolute_source_paths,
+                            meta={ k: {'related_images': related_images[k] } for k in related_images },
                             data_dir=upload_dir
                         )
                         content = meta_info.content
@@ -410,6 +416,7 @@ def _create_thread(tid, data):
                             name, ext = os.path.splitext(os.path.relpath(source, upload_dir))
                             content.append({
                                 'name': name,
+                                'meta': { 'related_images': related_images[''.join((name, ext))] },
                                 'extension': ext
                             })
                     manifest.create(content)
@@ -465,27 +472,15 @@ def _create_thread(tid, data):
             update_progress(progress)
 
     if db_task.mode == 'annotation':
-        if validate_dimension.dimension == DimensionType.DIM_2D:
-            models.Image.objects.bulk_create(db_images)
-        else:
-            related_file = []
-            for image_data in db_images:
-                image_model = models.Image(
-                    data=image_data.data,
-                    path=image_data.path,
-                    frame=image_data.frame,
-                    width=image_data.width,
-                    height=image_data.height
-                )
+        models.Image.objects.bulk_create(db_images)
+        created_images = models.Image.objects.filter(data_id=db_data.id)
 
-                image_model.save()
-                image_data = models.Image.objects.get(id=image_model.id)
-
-                if validate_dimension.related_files.get(image_data.path, None):
-                    for related_image_file in validate_dimension.related_files[image_data.path]:
-                        related_file.append(
-                            RelatedFile(data=db_data, primary_image_id=image_data.id, path=related_image_file))
-            RelatedFile.objects.bulk_create(related_file)
+        db_related_files = [
+            RelatedFile(data=image.data, primary_image=image, path=os.path.join(upload_dir, related_file_path))
+            for image in created_images
+            for related_file_path in related_images.get(image.path, [])
+        ]
+        RelatedFile.objects.bulk_create(db_related_files)
         db_images = []
     else:
         models.Video.objects.create(

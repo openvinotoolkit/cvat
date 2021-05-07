@@ -1,6 +1,6 @@
 {
   "name": "cvat-core",
-  "version": "3.12.1",
+  "version": "3.13.0",
   "description": "Part of Computer Vision Tool which presents an interface for client-side integration",
   "main": "babel.config.js",
   "scripts": {

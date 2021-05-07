@@ -9,7 +9,6 @@ import zipfile
 import io
 import itertools
 import struct
-import re
 from abc import ABC, abstractmethod
 from contextlib import closing
 
@@ -112,6 +111,10 @@ class ImageListReader(IMediaReader):
         for i in range(self._start, self._stop, self._step):
             yield (self.get_image(i), self.get_path(i), i)
 
+    def filter(self, callback):
+        source_path = list(filter(callback, self._source_path))
+        ImageListReader.__init__(self, source_path, step=self._step, start=self._start, stop=self._stop)
+
     def get_path(self, i):
         return self._source_path[i]
 
@@ -199,7 +202,7 @@ class ZipReader(ImageListReader):
         self._zip_source = zipfile.ZipFile(source_path[0], mode='a')
         self.extract_dir = source_path[1] if len(source_path) > 1 else None
         file_list = [f for f in self._zip_source.namelist() if files_to_ignore(f) and get_mime(f) == 'image']
-        super().__init__(file_list, step, start, stop)
+        super().__init__(file_list, step=step, start=start, stop=stop)
 
     def __del__(self):
         self._zip_source.close()
@@ -759,66 +762,6 @@ class ValidateDimension:
                 self.image_files[file_name] = file_path
         return pcd_files
 
-    def validate_velodyne_points(self, *args):
-        root, actual_path, files = args
-        velodyne_files = self.process_files(root, actual_path, files)
-        related_path = os.path.split(os.path.split(root)[0])[0]
-
-        path_list = [re.search(r'image_\d.*', path, re.IGNORECASE) for path in os.listdir(related_path) if
-                     os.path.isdir(os.path.join(related_path, path))]
-
-        for path_ in path_list:
-            if path_:
-                path = os.path.join(path_.group(), "data")
-                path = os.path.abspath(os.path.join(related_path, path))
-
-                files = [file for file in os.listdir(path) if
-                         os.path.isfile(os.path.abspath(os.path.join(path, file)))]
-                for file in files:
-
-                    f_name = file.split(".")[0]
-                    if velodyne_files.get(f_name, None):
-                        self.related_files[velodyne_files[f_name]].append(
-                            os.path.abspath(os.path.join(path, file)))
-
-    def validate_pointcloud(self, *args):
-        root, actual_path, files = args
-        pointcloud_files = self.process_files(root, actual_path, files)
-        related_path = root.rsplit("/pointcloud", 1)[0]
-        related_images_path = os.path.join(related_path, "related_images")
-
-        if os.path.isdir(related_images_path):
-            paths = [path for path in os.listdir(related_images_path) if
-                     os.path.isdir(os.path.abspath(os.path.join(related_images_path, path)))]
-
-            for k in pointcloud_files:
-                for path in paths:
-
-                    if k == path.rsplit("_", 1)[0]:
-                        file_path = os.path.abspath(os.path.join(related_images_path, path))
-                        files = [file for file in os.listdir(file_path) if
-                                 os.path.isfile(os.path.join(file_path, file))]
-                        for related_image in files:
-                            self.related_files[pointcloud_files[k]].append(os.path.join(file_path, related_image))
-
-    def validate_default(self, *args):
-        root, actual_path, files = args
-        pcd_files = self.process_files(root, actual_path, files)
-        if len(list(pcd_files.keys())):
-
-            for image in self.image_files.keys():
-                if pcd_files.get(image, None):
-                    self.related_files[pcd_files[image]].append(self.image_files[image])
-
-            current_directory_name = os.path.split(root)
-
-            if len(pcd_files.keys()) == 1:
-                pcd_name = list(pcd_files.keys())[0].rsplit(".", 1)[0]
-                if current_directory_name[1] == pcd_name:
-                    for related_image in self.image_files.values():
-                        if root == os.path.split(related_image)[0]:
-                            self.related_files[pcd_files[pcd_name]].append(related_image)
-
     def validate(self):
         """
             Validate the directory structure for kitty and point cloud format.
@@ -830,15 +773,7 @@ class ValidateDimension:
             if not files_to_ignore(root):
                 continue
 
-            if root.endswith("data"):
-                if os.path.split(os.path.split(root)[0])[1] == "velodyne_points":
-                    self.validate_velodyne_points(root, actual_path, files)
-
-            elif os.path.split(root)[-1] == "pointcloud":
-                self.validate_pointcloud(root, actual_path, files)
-
-            else:
-                self.validate_default(root, actual_path, files)
+            self.process_files(root, actual_path, files)
 
         if len(self.related_files.keys()):
             self.dimension = DimensionType.DIM_3D

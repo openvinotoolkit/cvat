@@ -19,7 +19,15 @@
      */
     class FrameData {
         constructor({
-            width, height, name, taskID, frameNumber, startFrame, stopFrame, decodeForward,
+            width,
+            height,
+            name,
+            taskID,
+            frameNumber,
+            startFrame,
+            stopFrame,
+            decodeForward,
+            has_related_context: hasRelatedContext,
         }) {
             Object.defineProperties(
                 this,
@@ -70,6 +78,18 @@
                      */
                     number: {
                         value: frameNumber,
+                        writable: false,
+                    },
+                    /**
+                     * True if some context images are associated with this frame
+                     * @name hasRelatedContext
+                     * @type {boolean}
+                     * @memberof module:API.cvat.classes.FrameData
+                     * @readonly
+                     * @instance
+                     */
+                    hasRelatedContext: {
+                        value: hasRelatedContext,
                         writable: false,
                     },
                     startFrame: {

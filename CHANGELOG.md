@@ -13,9 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hotkeys to switch a label of existing object or to change default label (for objects created with N) (<https://github.com/openvinotoolkit/cvat/pull/3070>)
 - A script to convert some kinds of DICOM files to regular images (<https://github.com/openvinotoolkit/cvat/pull/3095>)
 - Helm chart prototype (<https://github.com/openvinotoolkit/cvat/pull/3102>)
-
+- Support of context images for 2D image tasks (<https://github.com/openvinotoolkit/cvat/pull/3122>)
 
 ### Changed
+- Updated manifest format, added meta with related images (<https://github.com/openvinotoolkit/cvat/pull/3122>)
 
 ### Deprecated
 
@@ -85,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed filters select overflow (<https://github.com/openvinotoolkit/cvat/pull/2614>)
 - Fixed tasks in project auto annotation (<https://github.com/openvinotoolkit/cvat/pull/2725>)
 - Cuboids are missed in annotations statistics (<https://github.com/openvinotoolkit/cvat/pull/2704>)
-- The list of files attached to the task is not displayed (<https://github.com/openvinotoolkit/cvat/pul
+- The list of files attached to the task is not displayed (<https://github.com/openvinotoolkit/cvat/pull/2706>)
 - A couple of css-related issues (top bar disappear, wrong arrow position on collapse elements) (<https://github.com/openvinotoolkit/cvat/pull/2736>)
 - Issue with point region doesn't work in Firefox (<https://github.com/openvinotoolkit/cvat/pull/2727>)
 - Fixed cuboid perspective change (<https://github.com/openvinotoolkit/cvat/pull/2733>)
