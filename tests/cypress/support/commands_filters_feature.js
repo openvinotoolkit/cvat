@@ -64,7 +64,7 @@ Cypress.Commands.add('setGroupCondition', (groupIndex, condition) => {
 
 Cypress.Commands.add(
     'setFilter',
-    ({groupIndex, ruleIndex, field, operator, valueSource, value, label, labelAttr, submit}) => {
+    ({ groupIndex, ruleIndex, field, operator, valueSource, value, label, labelAttr, submit }) => {
         cy.сheckFiltersModalOpened();
         cy.collectGroupID().then((groupIdIndex) => {
             cy.collectRuleID().then((ruleIdIndex) => {

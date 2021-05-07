@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2020-2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -25,6 +25,8 @@ interface TasksPageProps {
     numberOfHiddenTasks: number;
     onGetTasks: (gettingQuery: TasksQuery) => void;
     hideEmptyTasks: (hideEmpty: boolean) => void;
+    onImportTask: (file: File) => void;
+    taskImporting: boolean;
 }
 
 function getSearchField(gettingQuery: TasksQuery): string {
@@ -81,7 +83,9 @@ class TasksPageComponent extends React.PureComponent<TasksPageProps & RouteCompo
     }
 
     public componentDidUpdate(prevProps: TasksPageProps & RouteComponentProps): void {
-        const { location, gettingQuery, tasksFetching, numberOfHiddenTasks, onGetTasks, hideEmptyTasks } = this.props;
+        const {
+            location, gettingQuery, tasksFetching, numberOfHiddenTasks, onGetTasks, hideEmptyTasks,
+        } = this.props;
 
         if (prevProps.location.search !== location.search) {
             // get new tasks if any query changes
@@ -186,7 +190,9 @@ class TasksPageComponent extends React.PureComponent<TasksPageProps & RouteCompo
     }
 
     public render(): JSX.Element {
-        const { tasksFetching, gettingQuery, numberOfVisibleTasks } = this.props;
+        const {
+            tasksFetching, gettingQuery, numberOfVisibleTasks, onImportTask, taskImporting,
+        } = this.props;
 
         if (tasksFetching) {
             return <Spin size='large' className='cvat-spinner' />;
@@ -194,7 +200,12 @@ class TasksPageComponent extends React.PureComponent<TasksPageProps & RouteCompo
 
         return (
             <div className='cvat-tasks-page'>
-                <TopBar onSearch={this.handleSearch} searchValue={getSearchField(gettingQuery)} />
+                <TopBar
+                    onSearch={this.handleSearch}
+                    searchValue={getSearchField(gettingQuery)}
+                    onFileUpload={onImportTask}
+                    taskImporting={taskImporting}
+                />
                 {numberOfVisibleTasks ? (
                     <TaskListContainer onSwitchPage={this.handlePagination} />
                 ) : (

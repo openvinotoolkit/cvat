@@ -6,7 +6,7 @@
 
 context('Reset password notification.', () => {
     const caseId = '73';
-    const dummyEmail = 'admin@local.local'
+    const dummyEmail = 'admin@local.local';
 
     before(() => {
         cy.visit('auth/login');

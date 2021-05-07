@@ -19,12 +19,16 @@ def config_log(level):
 
 
 def main():
-    actions = {'create': CLI.tasks_create,
-               'delete': CLI.tasks_delete,
-               'ls': CLI.tasks_list,
-               'frames': CLI.tasks_frame,
-               'dump': CLI.tasks_dump,
-               'upload': CLI.tasks_upload}
+    actions = {
+        'create': CLI.tasks_create,
+        'delete': CLI.tasks_delete,
+        'ls': CLI.tasks_list,
+        'frames': CLI.tasks_frame,
+        'dump': CLI.tasks_dump,
+        'upload': CLI.tasks_upload,
+        'export': CLI.tasks_export,
+        'import': CLI.tasks_import,
+    }
     args = parser.parse_args()
     config_log(args.loglevel)
     with requests.Session() as session:

@@ -170,7 +170,8 @@ context('Label constructor. Color label. Label name editing', () => {
                         });
                     cy.get('.cvat-change-task-label-color-badge')
                         .children()
-                        .should('have.attr', 'style').and('contain', 'rgb(179, 179, 179)');
+                        .should('have.attr', 'style')
+                        .and('contain', 'rgb(179, 179, 179)');
                     cy.get('.cvat-label-constructor-updater').contains('button', 'Done').click();
                     cy.contains('.cvat-constructor-viewer-item', `Case ${caseId}`)
                         .should('have.attr', 'style')

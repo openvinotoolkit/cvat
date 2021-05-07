@@ -35,6 +35,12 @@ export enum TasksActionTypes {
     UPDATE_TASK_SUCCESS = 'UPDATE_TASK_SUCCESS',
     UPDATE_TASK_FAILED = 'UPDATE_TASK_FAILED',
     HIDE_EMPTY_TASKS = 'HIDE_EMPTY_TASKS',
+    EXPORT_TASK = 'EXPORT_TASK',
+    EXPORT_TASK_SUCCESS = 'EXPORT_TASK_SUCCESS',
+    EXPORT_TASK_FAILED = 'EXPORT_TASK_FAILED',
+    IMPORT_TASK = 'IMPORT_TASK',
+    IMPORT_TASK_SUCCESS = 'IMPORT_TASK_SUCCESS',
+    IMPORT_TASK_FAILED = 'IMPORT_TASK_FAILED',
 }
 
 function getTasks(): AnyAction {
@@ -213,6 +219,49 @@ export function loadAnnotationsAsync(
     };
 }
 
+function importTask(): AnyAction {
+    const action = {
+        type: TasksActionTypes.IMPORT_TASK,
+        payload: {},
+    };
+
+    return action;
+}
+
+function importTaskSuccess(task: any): AnyAction {
+    const action = {
+        type: TasksActionTypes.IMPORT_TASK_SUCCESS,
+        payload: {
+            task,
+        },
+    };
+
+    return action;
+}
+
+function importTaskFailed(error: any): AnyAction {
+    const action = {
+        type: TasksActionTypes.IMPORT_TASK_FAILED,
+        payload: {
+            error,
+        },
+    };
+
+    return action;
+}
+
+export function importTaskAsync(file: File): ThunkAction<Promise<void>, {}, {}, AnyAction> {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        try {
+            dispatch(importTask());
+            const taskInstance = await cvat.classes.Task.import(file);
+            dispatch(importTaskSuccess(taskInstance));
+        } catch (error) {
+            dispatch(importTaskFailed(error));
+        }
+    };
+}
+
 function exportDataset(task: any, exporter: any): AnyAction {
     const action = {
         type: TasksActionTypes.EXPORT_DATASET,
@@ -264,6 +313,56 @@ export function exportDatasetAsync(task: any, exporter: any): ThunkAction<Promis
         }
 
         dispatch(exportDatasetSuccess(task, exporter));
+    };
+}
+
+function exportTask(taskID: number): AnyAction {
+    const action = {
+        type: TasksActionTypes.EXPORT_TASK,
+        payload: {
+            taskID,
+        },
+    };
+
+    return action;
+}
+
+function exportTaskSuccess(taskID: number): AnyAction {
+    const action = {
+        type: TasksActionTypes.EXPORT_TASK_SUCCESS,
+        payload: {
+            taskID,
+        },
+    };
+
+    return action;
+}
+
+function exportTaskFailed(taskID: number, error: Error): AnyAction {
+    const action = {
+        type: TasksActionTypes.EXPORT_TASK_FAILED,
+        payload: {
+            taskID,
+            error,
+        },
+    };
+
+    return action;
+}
+
+export function exportTaskAsync(taskInstance: any): ThunkAction<Promise<void>, {}, {}, AnyAction> {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        dispatch(exportTask(taskInstance.id));
+
+        try {
+            const url = await taskInstance.export();
+            const downloadAnchor = window.document.getElementById('downloadAnchor') as HTMLAnchorElement;
+            downloadAnchor.href = url;
+            downloadAnchor.click();
+            dispatch(exportTaskSuccess(taskInstance.id));
+        } catch (error) {
+            dispatch(exportTaskFailed(taskInstance.id, error));
+        }
     };
 }
 

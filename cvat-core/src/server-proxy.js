@@ -490,6 +490,59 @@
                 });
             }
 
+            async function exportTask(id) {
+                const { backendAPI } = config;
+                const url = `${backendAPI}/tasks/${id}`;
+
+                return new Promise((resolve, reject) => {
+                    async function request() {
+                        try {
+                            const response = await Axios.get(`${url}?action=export`, {
+                                proxy: config.proxy,
+                            });
+                            if (response.status === 202) {
+                                setTimeout(request, 3000);
+                            } else {
+                                resolve(`${url}?action=download`);
+                            }
+                        } catch (errorData) {
+                            reject(generateError(errorData));
+                        }
+                    }
+
+                    setTimeout(request);
+                });
+            }
+
+            async function importTask(file) {
+                const { backendAPI } = config;
+
+                let taskData = new FormData();
+                taskData.append('task_file', file);
+
+                return new Promise((resolve, reject) => {
+                    async function request() {
+                        try {
+                            const response = await Axios.post(`${backendAPI}/tasks?action=import`, taskData, {
+                                proxy: config.proxy,
+                            });
+                            if (response.status === 202) {
+                                taskData = new FormData();
+                                taskData.append('rq_id', response.data.rq_id);
+                                setTimeout(request, 3000);
+                            } else {
+                                const importedTask = await getTasks(`?id=${response.data.id}`);
+                                resolve(importedTask[0]);
+                            }
+                        } catch (errorData) {
+                            reject(generateError(errorData));
+                        }
+                    }
+
+                    setTimeout(request);
+                });
+            }
+
             async function createTask(taskSpec, taskDataSpec, onUpdate) {
                 const { backendAPI } = config;
 
@@ -1161,6 +1214,8 @@
                             createTask,
                             deleteTask,
                             exportDataset,
+                            exportTask,
+                            importTask,
                         }),
                         writable: false,
                     },

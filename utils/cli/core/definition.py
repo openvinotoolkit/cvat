@@ -297,3 +297,36 @@ upload_parser.add_argument(
     default='CVAT 1.1',
     help='annotation format (default: %(default)s)'
 )
+
+#######################################################################
+# Export task
+#######################################################################
+
+export_task_parser = task_subparser.add_parser(
+    'export',
+    description='Export a CVAT task.'
+)
+export_task_parser.add_argument(
+    'task_id',
+    type=int,
+    help='task ID'
+)
+export_task_parser.add_argument(
+    'filename',
+    type=str,
+    help='output file'
+)
+
+#######################################################################
+# Import task
+#######################################################################
+
+import_task_parser = task_subparser.add_parser(
+    'import',
+    description='import a CVAT task.'
+)
+import_task_parser.add_argument(
+    'filename',
+    type=str,
+    help='upload file'
+)

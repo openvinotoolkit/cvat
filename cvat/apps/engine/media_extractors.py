@@ -107,6 +107,7 @@ class ImageListReader(IMediaReader):
             start=start,
             stop=stop,
         )
+        self._dimension = DimensionType.DIM_2D
 
     def __iter__(self):
         for i in range(self._start, self._stop, self._step):
@@ -122,12 +123,29 @@ class ImageListReader(IMediaReader):
         return (pos - self._start + 1) / (self._stop - self._start)
 
     def get_preview(self):
-        fp = open(self._source_path[0], "rb")
+        if self._dimension == DimensionType.DIM_3D:
+            fp = open(os.path.join(os.path.dirname(__file__), 'assets/3d_preview.jpeg'), "rb")
+        else:
+            fp = open(self._source_path[0], "rb")
         return self._get_preview(fp)
 
     def get_image_size(self, i):
+        if self._dimension == DimensionType.DIM_3D:
+            with open(self.get_path(i), 'rb') as f:
+                properties = ValidateDimension.get_pcd_properties(f)
+                return int(properties["WIDTH"]),  int(properties["HEIGHT"])
         img = Image.open(self._source_path[i])
         return img.width, img.height
+
+    def reconcile(self, source_files, step=1, start=0, stop=None, dimension=DimensionType.DIM_2D):
+        # FIXME
+        ImageListReader.__init__(self,
+            source_path=source_files,
+            step=step,
+            start=start,
+            stop=stop
+        )
+        self._dimension = dimension
 
     @property
     def absolute_source_paths(self):
@@ -195,8 +213,7 @@ class PdfReader(ImageListReader):
 
 class ZipReader(ImageListReader):
     def __init__(self, source_path, step=1, start=0, stop=None):
-        self._dimension = DimensionType.DIM_2D
-        self._zip_source = zipfile.ZipFile(source_path[0], mode='a')
+        self._zip_source = zipfile.ZipFile(source_path[0], mode='r')
         self.extract_dir = source_path[1] if len(source_path) > 1 else None
         file_list = [f for f in self._zip_source.namelist() if files_to_ignore(f) and get_mime(f) == 'image']
         super().__init__(file_list, step, start, stop)
@@ -206,6 +223,7 @@ class ZipReader(ImageListReader):
 
     def get_preview(self):
         if self._dimension == DimensionType.DIM_3D:
+            # TODO
             fp = open(os.path.join(os.path.dirname(__file__), 'assets/3d_preview.jpeg'), "rb")
             return self._get_preview(fp)
         io_image = io.BytesIO(self._zip_source.read(self._source_path[0]))
@@ -213,31 +231,19 @@ class ZipReader(ImageListReader):
 
     def get_image_size(self, i):
         if self._dimension == DimensionType.DIM_3D:
-            with self._zip_source.open(self._source_path[i], "r") as file:
-                properties = ValidateDimension.get_pcd_properties(file)
+            with open(self.get_path(i), 'rb') as f:
+                properties = ValidateDimension.get_pcd_properties(f)
                 return int(properties["WIDTH"]),  int(properties["HEIGHT"])
         img = Image.open(io.BytesIO(self._zip_source.read(self._source_path[i])))
         return img.width, img.height
 
     def get_image(self, i):
+        if self._dimension == DimensionType.DIM_3D:
+            return self.get_path(i)
         return io.BytesIO(self._zip_source.read(self._source_path[i]))
-
-    def add_files(self, source_path):
-        root_path = os.path.split(self._zip_source.filename)[0]
-        for path in source_path:
-            self._zip_source.write(path, path.replace(root_path, ""))
 
     def get_zip_filename(self):
         return self._zip_source.filename
-
-    def reconcile(self, source_files, step=1, start=0, stop=None, dimension=DimensionType.DIM_2D):
-        self._dimension = dimension
-        super().__init__(
-            source_path=source_files,
-            step=step,
-            start=start,
-            stop=stop
-        )
 
     def get_path(self, i):
         if self._zip_source.filename:
@@ -245,6 +251,15 @@ class ZipReader(ImageListReader):
                 if not self.extract_dir else os.path.join(self.extract_dir, self._source_path[i])
         else: # necessary for mime_type definition
             return self._source_path[i]
+
+    def reconcile(self, source_files, step=1, start=0, stop=None, dimension=DimensionType.DIM_2D):
+        super().reconcile(
+            source_files=source_files,
+            step=step,
+            start=start,
+            stop=stop,
+            dimension=dimension,
+        )
 
     def extract(self):
         self._zip_source.extractall(self.extract_dir if self.extract_dir else os.path.dirname(self._zip_source.filename))

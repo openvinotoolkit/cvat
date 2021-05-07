@@ -33,7 +33,15 @@ context('Overlap size.', () => {
         cy.login();
         cy.imageGenerator(imagesFolder, imageFileName, width, height, color, posX, posY, labelName, imagesCount);
         cy.createZipArchive(directoryToArchive, archivePath);
-        cy.createAnnotationTask(taskName, labelName, attrName, textDefaultValue, archiveName, false, advancedConfigurationParams);
+        cy.createAnnotationTask(
+            taskName,
+            labelName,
+            attrName,
+            textDefaultValue,
+            archiveName,
+            false,
+            advancedConfigurationParams,
+        );
         cy.openTask(taskName);
     });
 
@@ -45,31 +53,43 @@ context('Overlap size.', () => {
     describe(`Testing case "${caseId}"`, () => {
         it('The task parameters is correct.', () => {
             cy.get('.cvat-task-parameters').within(() => {
-                cy.get('table').find('tr').last().find('td').then(($taskParameters) => {
-                    expect(Number($taskParameters[0].innerText)).equal(calculatedOverlapSize);
-                    expect(Number($taskParameters[1].innerText)).equal(advancedConfigurationParams.segmentSize);
-                });
+                cy.get('table')
+                    .find('tr')
+                    .last()
+                    .find('td')
+                    .then(($taskParameters) => {
+                        expect(Number($taskParameters[0].innerText)).equal(calculatedOverlapSize);
+                        expect(Number($taskParameters[1].innerText)).equal(advancedConfigurationParams.segmentSize);
+                    });
             });
         });
 
         it('The range of frame values corresponds to the parameters.', () => {
             cy.getJobNum(0).then(($job) => {
-                cy.contains('a', `Job #${$job}`).parents('tr').find('.cvat-job-item-frames').then(($frameRange) => {
-                    expect(Number($frameRange.text().split('-')[1])).equal(advancedConfigurationParams.segmentSize - 1); // expected 4 to equal 4
-                });
+                cy.contains('a', `Job #${$job}`)
+                    .parents('tr')
+                    .find('.cvat-job-item-frames')
+                    .then(($frameRange) => {
+                        expect(Number($frameRange.text().split('-')[1])).equal(
+                            advancedConfigurationParams.segmentSize - 1,
+                        ); // expected 4 to equal 4
+                    });
             });
             cy.getJobNum(1).then(($job) => {
-                cy.contains('a', `Job #${$job}`).parents('tr').find('.cvat-job-item-frames').then(($frameRange) => {
-                    expect(Number($frameRange.text().split('-')[0])).equal(advancedConfigurationParams.segmentSize - 2); // expected 3 to equal 3
-                });
+                cy.contains('a', `Job #${$job}`)
+                    .parents('tr')
+                    .find('.cvat-job-item-frames')
+                    .then(($frameRange) => {
+                        expect(Number($frameRange.text().split('-')[0])).equal(
+                            advancedConfigurationParams.segmentSize - 2,
+                        ); // expected 3 to equal 3
+                    });
             });
         });
 
         it('The range of frame values in a job corresponds to the parameters.', () => {
             cy.openJob(0);
-            cy.get('.cvat-player-frame-selector')
-                .find('input[role="spinbutton"]')
-                .should('have.value', '0');
+            cy.get('.cvat-player-frame-selector').find('input[role="spinbutton"]').should('have.value', '0');
             cy.get('.cvat-player-last-button').click();
             cy.get('.cvat-player-frame-selector')
                 .find('input[role="spinbutton"]')

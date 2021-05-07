@@ -5,28 +5,26 @@
 
 import itertools
 import os
-import sys
-import rq
 import shutil
+import sys
+from distutils.dir_util import copy_tree
 from traceback import print_exception
 from urllib import parse as urlparse
 from urllib import request as urlrequest
-import requests
-
-from cvat.apps.engine.media_extractors import get_mime, MEDIA_TYPES, Mpeg4ChunkWriter, ZipChunkWriter, Mpeg4CompressedChunkWriter, ZipCompressedChunkWriter, ValidateDimension
-from cvat.apps.engine.models import DataChoice, StorageMethodChoice, StorageChoice, RelatedFile
-from cvat.apps.engine.utils import av_scan_paths
-from cvat.apps.engine.models import DimensionType
-from utils.dataset_manifest import ImageManifestManager, VideoManifestManager
-from utils.dataset_manifest.core import VideoManifestValidator
 
 import django_rq
+import requests
+import rq
 from django.conf import settings
 from django.db import transaction
-from distutils.dir_util import copy_tree
 
-from . import models
-from .log import slogger
+from cvat.apps.engine import models
+from cvat.apps.engine.log import slogger
+from cvat.apps.engine.media_extractors import (MEDIA_TYPES, Mpeg4ChunkWriter, Mpeg4CompressedChunkWriter,
+    ValidateDimension, ZipChunkWriter, ZipCompressedChunkWriter, get_mime)
+from cvat.apps.engine.utils import av_scan_paths
+from utils.dataset_manifest import ImageManifestManager, VideoManifestManager
+from utils.dataset_manifest.core import VideoManifestValidator
 
 ############################# Low Level server API
 
@@ -74,8 +72,9 @@ def _save_task_to_db(db_task):
 
     segment_size = db_task.segment_size
     segment_step = segment_size
-    if segment_size == 0:
+    if segment_size == 0 or segment_size > db_task.data.size:
         segment_size = db_task.data.size
+        db_task.segment_size = segment_size
 
         # Segment step must be more than segment_size + overlap in single-segment tasks
         # Otherwise a task contains an extra segment
@@ -207,15 +206,15 @@ def _download_data(urls, upload_dir):
 
     return list(local_files.keys())
 
+def _get_manifest_frame_indexer(start_frame=0, frame_step=1):
+    return lambda frame_id: start_frame + frame_id * frame_step
+
 @transaction.atomic
-def _create_thread(tid, data):
+def _create_thread(tid, data, isImport=False):
     slogger.glob.info("create task #{}".format(tid))
 
     db_task = models.Task.objects.select_for_update().get(pk=tid)
     db_data = db_task.data
-    if db_task.data.size != 0:
-        raise NotImplementedError("Adding more data is not implemented")
-
     upload_dir = db_data.get_upload_dirname()
 
     if data['remote_files']:
@@ -225,11 +224,11 @@ def _create_thread(tid, data):
     media = _count_files(data, manifest_file)
     media, task_mode = _validate_data(media, manifest_file)
     if manifest_file:
-        assert settings.USE_CACHE and db_data.storage_method == StorageMethodChoice.CACHE, \
+        assert settings.USE_CACHE and db_data.storage_method == models.StorageMethodChoice.CACHE, \
             "File with meta information can be uploaded if 'Use cache' option is also selected"
 
     if data['server_files']:
-        if db_data.storage == StorageChoice.LOCAL:
+        if db_data.storage == models.StorageChoice.LOCAL:
             _copy_data_from_share(data['server_files'], upload_dir)
         else:
             upload_dir = settings.SHARE_ROOT
@@ -242,16 +241,23 @@ def _create_thread(tid, data):
 
     db_images = []
     extractor = None
+    manifest_index = _get_manifest_frame_indexer()
 
     for media_type, media_files in media.items():
         if media_files:
             if extractor is not None:
                 raise Exception('Combined data types are not supported')
             source_paths=[os.path.join(upload_dir, f) for f in media_files]
-            if media_type in {'archive', 'zip'} and db_data.storage == StorageChoice.SHARE:
+            if media_type in {'archive', 'zip'} and db_data.storage == models.StorageChoice.SHARE:
                 source_paths.append(db_data.get_upload_dirname())
                 upload_dir = db_data.get_upload_dirname()
-                db_data.storage = StorageChoice.LOCAL
+                db_data.storage = models.StorageChoice.LOCAL
+            if isImport and media_type == 'image' and db_data.storage == models.StorageChoice.SHARE:
+                manifest_index = _get_manifest_frame_indexer(db_data.start_frame, db_data.get_frame_step())
+                db_data.start_frame = 0
+                data['stop_frame'] = None
+                db_data.frame_filter = ''
+
             extractor = MEDIA_TYPES[media_type]['extractor'](
                 source_path=source_paths,
                 step=db_data.get_frame_step(),
@@ -262,20 +268,18 @@ def _create_thread(tid, data):
     validate_dimension = ValidateDimension()
     if extractor.__class__ == MEDIA_TYPES['zip']['extractor']:
         extractor.extract()
-        validate_dimension.set_path(os.path.split(extractor.get_zip_filename())[0])
-        validate_dimension.validate()
-        if validate_dimension.dimension == DimensionType.DIM_3D:
-            db_task.dimension = DimensionType.DIM_3D
+    validate_dimension.set_path(upload_dir)
+    validate_dimension.validate()
+    if validate_dimension.dimension == models.DimensionType.DIM_3D:
+        db_task.dimension = models.DimensionType.DIM_3D
 
-            extractor.reconcile(
-                source_files=list(validate_dimension.related_files.keys()),
-                step=db_data.get_frame_step(),
-                start=db_data.start_frame,
-                stop=data['stop_frame'],
-                dimension=DimensionType.DIM_3D,
-
-            )
-            extractor.add_files(validate_dimension.converted_files)
+        extractor.reconcile(
+            source_files=[os.path.join(upload_dir, f) for f in validate_dimension.related_files.keys()],
+            step=db_data.get_frame_step(),
+            start=db_data.start_frame,
+            stop=data['stop_frame'],
+            dimension=models.DimensionType.DIM_3D,
+        )
 
     db_task.mode = task_mode
     db_data.compressed_chunk_type = models.DataChoice.VIDEO if task_mode == 'interpolation' and not data['use_zip_chunks'] else models.DataChoice.IMAGESET
@@ -295,8 +299,8 @@ def _create_thread(tid, data):
         job.save_meta()
         update_progress.call_counter = (update_progress.call_counter + 1) % len(progress_animation)
 
-    compressed_chunk_writer_class = Mpeg4CompressedChunkWriter if db_data.compressed_chunk_type == DataChoice.VIDEO else ZipCompressedChunkWriter
-    if db_data.original_chunk_type == DataChoice.VIDEO:
+    compressed_chunk_writer_class = Mpeg4CompressedChunkWriter if db_data.compressed_chunk_type == models.DataChoice.VIDEO else ZipCompressedChunkWriter
+    if db_data.original_chunk_type == models.DataChoice.VIDEO:
         original_chunk_writer_class = Mpeg4ChunkWriter
         # Let's use QP=17 (that is 67 for 0-100 range) for the original chunks, which should be visually lossless or nearly so.
         # A lower value will significantly increase the chunk size with a slight increase of quality.
@@ -306,7 +310,7 @@ def _create_thread(tid, data):
         original_quality = 100
 
     kwargs = {}
-    if validate_dimension.dimension == DimensionType.DIM_3D:
+    if validate_dimension.dimension == models.DimensionType.DIM_3D:
         kwargs["dimension"] = validate_dimension.dimension
     compressed_chunk_writer = compressed_chunk_writer_class(db_data.image_quality, **kwargs)
     original_chunk_writer = original_chunk_writer_class(original_quality)
@@ -328,7 +332,7 @@ def _create_thread(tid, data):
         job.meta['status'] = msg
         job.save_meta()
 
-    if settings.USE_CACHE and db_data.storage_method == StorageMethodChoice.CACHE:
+    if settings.USE_CACHE and db_data.storage_method == models.StorageMethodChoice.CACHE:
        for media_type, media_files in media.items():
 
             if not media_files:
@@ -386,7 +390,7 @@ def _create_thread(tid, data):
                         if data['stop_frame'] else all_frames, all_frames), db_data.get_frame_step()))
                     video_path = os.path.join(upload_dir, media_files[0])
                 except Exception as ex:
-                    db_data.storage_method = StorageMethodChoice.FILE_SYSTEM
+                    db_data.storage_method = models.StorageMethodChoice.FILE_SYSTEM
                     if os.path.exists(db_data.get_manifest_path()):
                         os.remove(db_data.get_manifest_path())
                     if os.path.exists(db_data.get_index_path()):
@@ -398,7 +402,7 @@ def _create_thread(tid, data):
                 db_data.size = len(extractor)
                 manifest = ImageManifestManager(db_data.get_manifest_path())
                 if not manifest_file:
-                    if db_task.dimension == DimensionType.DIM_2D:
+                    if db_task.dimension == models.DimensionType.DIM_2D:
                         meta_info = manifest.prepare_meta(
                             sources=extractor.absolute_source_paths,
                             data_dir=upload_dir
@@ -420,8 +424,8 @@ def _create_thread(tid, data):
                     img_sizes = []
 
                     for _, frame_id in chunk_paths:
-                        properties = manifest[frame_id]
-                        if db_task.dimension == DimensionType.DIM_2D:
+                        properties = manifest[manifest_index(frame_id)]
+                        if db_task.dimension == models.DimensionType.DIM_2D:
                             resolution = (properties['width'], properties['height'])
                         else:
                             resolution = extractor.get_image_size(frame_id)
@@ -434,7 +438,7 @@ def _create_thread(tid, data):
                         for (path, frame), (w, h) in zip(chunk_paths, img_sizes)
                     ])
 
-    if db_data.storage_method == StorageMethodChoice.FILE_SYSTEM or not settings.USE_CACHE:
+    if db_data.storage_method == models.StorageMethodChoice.FILE_SYSTEM or not settings.USE_CACHE:
         counter = itertools.count()
         generator = itertools.groupby(extractor, lambda x: next(counter) // db_data.chunk_size)
         for chunk_idx, chunk_data in generator:
@@ -465,7 +469,7 @@ def _create_thread(tid, data):
             update_progress(progress)
 
     if db_task.mode == 'annotation':
-        if validate_dimension.dimension == DimensionType.DIM_2D:
+        if validate_dimension.dimension == models.DimensionType.DIM_2D:
             models.Image.objects.bulk_create(db_images)
         else:
             related_file = []
@@ -484,8 +488,8 @@ def _create_thread(tid, data):
                 if validate_dimension.related_files.get(image_data.path, None):
                     for related_image_file in validate_dimension.related_files[image_data.path]:
                         related_file.append(
-                            RelatedFile(data=db_data, primary_image_id=image_data.id, path=related_image_file))
-            RelatedFile.objects.bulk_create(related_file)
+                            models.RelatedFile(data=db_data, primary_image_id=image_data.id, path=related_image_file))
+            models.RelatedFile.objects.bulk_create(related_file)
         db_images = []
     else:
         models.Video.objects.create(

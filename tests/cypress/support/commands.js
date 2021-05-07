@@ -422,7 +422,10 @@ Cypress.Commands.add('updateAttributes', (multiAttrParams) => {
         }
         if (multiAttrParams.mutable) {
             cy.get('.cvat-attribute-mutable-checkbox')
-                .find('[type="checkbox"]').should('not.be.checked').check().should('be.checked');
+                .find('[type="checkbox"]')
+                .should('not.be.checked')
+                .check()
+                .should('be.checked');
         }
     });
 });

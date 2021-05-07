@@ -202,6 +202,52 @@ class CLI():
             "with annotation file {} finished".format(filename)
         log.info(logger_string)
 
+    def tasks_export(self, task_id, filename, export_verification_period=3, **kwargs):
+        """ Export and download a whole task """
+        url = self.api.tasks_id(task_id)
+        export_url = url + '?action=export'
+
+        while True:
+            response = self.session.get(export_url)
+            response.raise_for_status()
+            log.info('STATUS {}'.format(response.status_code))
+            if response.status_code == 201:
+                break
+            sleep(export_verification_period)
+
+        response = self.session.get(url + '?action=download')
+        response.raise_for_status()
+
+        with open(filename, 'wb') as fp:
+            fp.write(response.content)
+        logger_string = "Task {} has been exported sucessfully. ".format(task_id) +\
+            "to {}".format(os.path.abspath(filename))
+        log.info(logger_string)
+
+    def tasks_import(self, filename, import_verification_period=3, **kwargs):
+        """ Import a task"""
+        url = self.api.tasks + '?action=import'
+        response = self.session.post(
+                url,
+                files={'task_file': open(filename, 'rb')}
+            )
+        response.raise_for_status()
+        response_json = response.json()
+        rq_id = response_json['rq_id']
+        while True:
+            sleep(import_verification_period)
+            response = self.session.post(
+                url,
+                data={'rq_id': rq_id}
+            )
+            response.raise_for_status()
+            if response.status_code == 201:
+                break
+
+        task_id = response.json()['id']
+        logger_string = "Task has been imported sucessfully. Task ID: {}".format(task_id)
+        log.info(logger_string)
+
     def login(self, credentials):
         url = self.api.login
         auth = {'username': credentials[0], 'password': credentials[1]}
