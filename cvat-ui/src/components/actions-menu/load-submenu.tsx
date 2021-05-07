@@ -47,7 +47,12 @@ export default function LoadSubmenu(props: Props): JSX.Element {
                                         return false;
                                     }}
                                 >
-                                    <Button block type='link' disabled={disabled} className='cvat-menu-load-submenu-item-button'>
+                                    <Button
+                                        block
+                                        type='link'
+                                        disabled={disabled}
+                                        className='cvat-menu-load-submenu-item-button'
+                                    >
                                         <UploadOutlined />
                                         <Text>{loader.name}</Text>
                                         {pending && <LoadingOutlined style={{ marginLeft: 10 }} />}

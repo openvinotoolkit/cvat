@@ -25,5 +25,5 @@ spec:
           image: openvino/cvat_ui:v1.2.0
           imagePullPolicy: Always
           ports:
-          - containerPort: 80
+            - containerPort: 80
           resources: {}

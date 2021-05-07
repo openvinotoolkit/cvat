@@ -8,6 +8,7 @@ import { withRouter } from 'react-router';
 import { RouteComponentProps } from 'react-router-dom';
 import Input from 'antd/lib/input';
 import copy from 'copy-to-clipboard';
+
 import {
     activateObject,
     changeFrameAsync,

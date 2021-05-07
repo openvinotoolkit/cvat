@@ -23,25 +23,25 @@ spec:
       containers:
         - name: cvat-postgres
           image: postgres:10.3-alpine
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: 'IfNotPresent'
           env:
-          - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                name: cvat-postgres-secret
-                key: POSTGRES_DB
-          - name: POSTGRES_USER
-            valueFrom:
-              secretKeyRef:
-                name: cvat-postgres-secret
-                key: POSTGRES_USER
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: cvat-postgres-secret
-                key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: cvat-postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cvat-postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cvat-postgres-secret
+                  key: POSTGRES_PASSWORD
           ports:
-          - containerPort: 5432
+            - containerPort: 5432
           readinessProbe:
             exec:
               command:

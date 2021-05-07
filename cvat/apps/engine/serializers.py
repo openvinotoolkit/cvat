@@ -405,8 +405,48 @@ class TaskSerializer(WriteOnceMixin, serializers.ModelSerializer):
             instance.bug_tracker)
         instance.subset = validated_data.get('subset', instance.subset)
         labels = validated_data.get('label_set', [])
-        for label in labels:
-            LabelSerializer.update_instance(label, instance)
+        if instance.project_id is None:
+            for label in labels:
+                LabelSerializer.update_instance(label, instance)
+        if validated_data.get('project_id', None) != instance.project_id:
+            project = models.Project.objects.get(id=validated_data.get('project_id', None))
+            if instance.project_id is None:
+                for old_label in instance.label_set.all():
+                    try:
+                        new_label = project.label_set.filter(name=old_label.name).first()
+                    except ValueError:
+                        raise serializers.ValidationError(f'Target project does not have label with name "{old_label.name}"')
+                    for attribute_spec in old_label.attributespec_set.all():
+                        attribute_spec.delete()
+                    for segment in instance.segment_set.all():
+                        for job in segment.job_set.all():
+                            for model in (models.LabeledTrack, models.LabeledShape, models.LabeledImage):
+                                for annotation in model.objects.filter(job=job, label=old_label).all():
+                                    annotation.label = new_label
+                                    annotation.save()
+                instance.labels = []
+            else:
+                for old_label in instance.project.label_set.all():
+                    if new_label_for_name := list(filter(lambda x: x.get('id', None) == old_label.id, labels)):
+                        old_label.name = new_label_for_name[0].get('name', old_label.name)
+                    try:
+                        new_label = project.label_set.filter(name=old_label.name).first()
+                    except ValueError:
+                        raise serializers.ValidationError(f'Target project does not have label with name "{old_label.name}"')
+                    for segment in instance.segment_set.all():
+                        for job in segment.job_set.all():
+                            for (model, attr, attr_name) in (
+                                (models.LabeledTrack, models.LabeledTrackAttributeVal, 'track'),
+                                (models.LabeledShape, models.LabeledShapeAttributeVal, 'shape'),
+                                (models.LabeledImage, models.LabeledImageAttributeVal, 'image')
+                            ):
+                                for annotation in model.objects.filter(job=job, label=old_label).all():
+                                    for attributeVal in attr.objects.filter(**{attr_name: annotation}).all():
+                                        attributeVal.delete()
+                                    annotation.label = new_label
+                                    annotation.save()
+
+            instance.project = project
 
         instance.save()
         return instance
@@ -415,6 +455,11 @@ class TaskSerializer(WriteOnceMixin, serializers.ModelSerializer):
         label_names = [label['name'] for label in value]
         if len(label_names) != len(set(label_names)):
             raise serializers.ValidationError('All label names must be unique for the task')
+        return value
+
+    def validate_project_id(self, value):
+        if value is not None and not models.Project.objects.filter(id=value).count():
+            raise serializers.ValidationError(f'Cannot find project with ID {value}')
         return value
 
 

@@ -9,8 +9,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-      app: cvat-app
-      tier: frontend
+    app: cvat-app
+    tier: frontend
   ports:
     - port: 80
       targetPort: 80

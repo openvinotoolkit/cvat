@@ -19,11 +19,11 @@ spec:
         tier: redis-app
     spec:
       containers:
-      - image: redis:4.0.5-alpine
-        name: cvat-redis
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 6379
-        resources:
-          limits:
-            cpu: "0.1"
+        - image: redis:4.0.5-alpine
+          name: cvat-redis
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6379
+          resources:
+            limits:
+              cpu: '0.1'

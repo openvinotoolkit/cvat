@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2020-2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -13,6 +13,7 @@ import Result from 'antd/lib/result';
 import DetailsContainer from 'containers/task-page/details';
 import JobListContainer from 'containers/task-page/job-list';
 import ModelRunnerModal from 'components/model-runner-modal/model-runner-dialog';
+import MoveTaskModal from 'components/move-task-modal/move-task-modal';
 import { Task } from 'reducers/interfaces';
 import TopBarComponent from './top-bar';
 
@@ -83,6 +84,7 @@ class TaskPageComponent extends React.PureComponent<Props> {
                     </Col>
                 </Row>
                 <ModelRunnerModal />
+                <MoveTaskModal />
                 {updating && <Spin size='large' className='cvat-spinner' />}
             </>
         );

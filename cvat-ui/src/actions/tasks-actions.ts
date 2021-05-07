@@ -35,6 +35,11 @@ export enum TasksActionTypes {
     UPDATE_TASK_SUCCESS = 'UPDATE_TASK_SUCCESS',
     UPDATE_TASK_FAILED = 'UPDATE_TASK_FAILED',
     HIDE_EMPTY_TASKS = 'HIDE_EMPTY_TASKS',
+    MOVE_TASK_TO_PROJECT = 'MOVE_TASK_TO_PROJECT',
+    MOVE_TASK_TO_PROJECT_SUCCESS = 'MOVE_TASK_TO_PROJECT_SUCCESS',
+    MOVE_TASK_TO_PROJECT_FAILED = 'MOVE_TASK_TO_PROJECT_FAILED',
+    SHOW_MOVE_TASK_MODAL = 'SHOW_MOVE_TASK_MODAL',
+    CLOSE_MOVE_TASK_MODAL = 'CLOSE_MOVE_TASK_MODAL',
 }
 
 function getTasks(): AnyAction {
@@ -518,4 +523,87 @@ export function hideEmptyTasks(hideEmpty: boolean): AnyAction {
     };
 
     return action;
+}
+
+export function showMoveTaskModal(taskInstance: any): AnyAction {
+    const action = {
+        type: TasksActionTypes.SHOW_MOVE_TASK_MODAL,
+        payload: {
+            taskInstance,
+        },
+    };
+
+    return action;
+}
+
+export function closeMoveTaskModal(): AnyAction {
+    const action = {
+        type: TasksActionTypes.CLOSE_MOVE_TASK_MODAL,
+    };
+
+    return action;
+}
+
+// TODO: should be options type here?
+function moveTaskToProject(): AnyAction {
+    const action = {
+        type: TasksActionTypes.MOVE_TASK_TO_PROJECT,
+        payload: {},
+    };
+
+    return action;
+}
+
+function moveTaskToProjectFailed(error: any, task: any): AnyAction {
+    const action = {
+        type: TasksActionTypes.MOVE_TASK_TO_PROJECT_FAILED,
+        payload: {
+            error,
+            task,
+        },
+    };
+
+    return action;
+}
+
+function moveTaskToProjectSuccess(task: any): AnyAction {
+    const action = {
+        type: TasksActionTypes.MOVE_TASK_TO_PROJECT_SUCCESS,
+        payload: {
+            task,
+        },
+    };
+
+    return action;
+}
+
+interface LabelMap {
+    label_id: number;
+    new_label_name: string | null;
+    clear_attributes: boolean;
+}
+
+export function moveTaskToProjectAsync(
+    taskInstance: any,
+    projectId: any,
+    labelMap: LabelMap[],
+): ThunkAction<Promise<void>, {}, {}, AnyAction> {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        dispatch(moveTaskToProject());
+        try {
+            // eslint-disable-next-line no-param-reassign
+            taskInstance.labels = labelMap.map((mapper) => {
+                const [label] = taskInstance.labels.filter((_label: any) => mapper.label_id === _label.id);
+                label.name = mapper.new_label_name;
+                return label;
+            });
+            // eslint-disable-next-line no-param-reassign
+            taskInstance.projectId = projectId;
+            await taskInstance.save();
+            const [task] = await cvat.tasks.get({ id: taskInstance.id });
+            dispatch(moveTaskToProjectSuccess(task));
+        } catch (error) {
+            dispatch(moveTaskToProjectFailed(error, taskInstance));
+        }
+    };
 }

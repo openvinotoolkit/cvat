@@ -9,8 +9,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-      app: cvat-app
-      tier: redis-app
+    app: cvat-app
+    tier: redis-app
   ports:
     - port: 6379
       targetPort: 6379

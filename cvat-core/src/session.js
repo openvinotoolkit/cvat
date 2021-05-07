@@ -1046,6 +1046,7 @@
                 bug_tracker: false,
                 subset: false,
                 labels: false,
+                project_id: false,
             };
 
             for (const property in data) {
@@ -1126,11 +1127,18 @@
                      * @name projectId
                      * @type {integer|null}
                      * @memberof module:API.cvat.classes.Task
-                     * @readonly
                      * @instance
                      */
                     projectId: {
                         get: () => data.project_id,
+                        set: (projectId) => {
+                            if (!Number.isInteger(projectId) || projectId <= 0) {
+                                throw new ArgumentError('Value must be a positive integer');
+                            }
+
+                            updatedFields.project_id = true;
+                            data.project_id = projectId;
+                        },
                     },
                     /**
                      * @name status
@@ -2000,6 +2008,9 @@
                     case 'subset':
                         taskData.subset = this.subset;
                         break;
+                    case 'project_id':
+                        taskData.project_id = this.projectId;
+                        break;
                     case 'labels':
                         taskData.labels = [...this._internalData.labels.map((el) => el.toJSON())];
                         break;
@@ -2017,6 +2028,7 @@
                 bugTracker: false,
                 subset: false,
                 labels: false,
+                project_id: false,
             };
 
             return this;

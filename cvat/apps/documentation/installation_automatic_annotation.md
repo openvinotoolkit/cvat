@@ -53,6 +53,7 @@
   - See [deploy_cpu.sh](/serverless/deploy_cpu.sh) for more examples.
 
   #### GPU Support
+
   You will need to install [Nvidia Container Toolkit](https://www.tensorflow.org/install/docker#gpu_support).
   Also you will need to add `--resource-limit nvidia.com/gpu=1 --triggers '{"myHttpTrigger": {"maxWorkers": 1}}'` to
   the nuclio deployment command. You can increase the maxWorker if you have enough GPU memory.
@@ -69,6 +70,7 @@
   ```
 
   **Note:**
+
   - The number of GPU deployed functions will be limited to your GPU memory.
   - See [deploy_gpu.sh](/serverless/deploy_gpu.sh) script for more examples.
 
@@ -115,12 +117,14 @@
       }
   ]
   ```
+
   </details>
 
 - To check for internal server errors, run `docker ps -a` to see the list of containers.
   Find the container that you are interested, e.g., `nuclio-nuclio-tf-faster-rcnn-inception-v2-coco-gpu`.
   Then check its logs by `docker logs <name of your container>`
   e.g.,
+
   ```bash
   docker logs nuclio-nuclio-tf-faster-rcnn-inception-v2-coco-gpu
   ```

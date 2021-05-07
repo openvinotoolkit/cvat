@@ -21,26 +21,26 @@ spec:
         tier: proxy
     spec:
       containers:
-      - name: nginx
-        image: nginx
-        ports:
-        - containerPort: 80
-        volumeMounts:
-        - mountPath: /etc/nginx
-          readOnly: true
-          name: cvat-nginx-conf
-        - mountPath: /var/log/nginx
-          name: log
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx
+              readOnly: true
+              name: cvat-nginx-conf
+            - mountPath: /var/log/nginx
+              name: log
       volumes:
-      - name: cvat-nginx-conf
-        configMap:
-          name: cvat-nginx-conf
-          items:
-            - key: nginx.conf
-              path: nginx.conf
-            - key: mime.types
-              path: mime.types
-            - key: cvat.conf
-              path: cvat.d/cvat.conf
-      - name: log
-        emptyDir: {}
+        - name: cvat-nginx-conf
+          configMap:
+            name: cvat-nginx-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+              - key: mime.types
+                path: mime.types
+              - key: cvat.conf
+                path: cvat.d/cvat.conf
+        - name: log
+          emptyDir: {}

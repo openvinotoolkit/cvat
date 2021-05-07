@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2020-2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -14,6 +14,10 @@ const defaultState: TasksState = {
     fetching: false,
     updating: false,
     hideEmpty: false,
+    moveTask: {
+        modalVisible: false,
+        taskId: null,
+    },
     count: 0,
     current: [],
     gettingQuery: {
@@ -349,6 +353,56 @@ export default (state: TasksState = defaultState, action: AnyAction): TasksState
             return {
                 ...state,
                 hideEmpty: action.payload.hideEmpty,
+            };
+        }
+        case TasksActionTypes.SHOW_MOVE_TASK_MODAL: {
+            return {
+                ...state,
+                moveTask: {
+                    ...state.moveTask,
+                    modalVisible: true,
+                    taskId: action.payload.taskInstance.id,
+                },
+            };
+        }
+        case TasksActionTypes.CLOSE_MOVE_TASK_MODAL: {
+            return {
+                ...state,
+                moveTask: {
+                    ...state.moveTask,
+                    modalVisible: false,
+                    taskId: null,
+                },
+            };
+        }
+        case TasksActionTypes.MOVE_TASK_TO_PROJECT: {
+            return {
+                ...state,
+                updating: true,
+            };
+        }
+        case TasksActionTypes.MOVE_TASK_TO_PROJECT_FAILED: {
+            return {
+                ...state,
+                updating: false,
+            };
+        }
+        case TasksActionTypes.MOVE_TASK_TO_PROJECT_SUCCESS: {
+            return {
+                ...state,
+                updating: false,
+                current: state.current.map(
+                    (task): Task => {
+                        if (task.instance.id === action.payload.task.id) {
+                            return {
+                                ...task,
+                                instance: action.payload.task,
+                            };
+                        }
+
+                        return task;
+                    },
+                ),
             };
         }
         case BoundariesActionTypes.RESET_AFTER_ERROR:
