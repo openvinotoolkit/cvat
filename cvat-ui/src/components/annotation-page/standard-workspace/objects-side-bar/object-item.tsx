@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -6,6 +6,8 @@ import React from 'react';
 
 import ObjectButtonsContainer from 'containers/annotation-page/standard-workspace/objects-side-bar/object-buttons';
 import { ObjectType, ShapeType, ColorBy } from 'reducers/interfaces';
+import { Canvas } from 'cvat-canvas-wrapper';
+import { Canvas3d } from 'cvat-canvas3d-wrapper';
 import ItemDetails, { attrValuesAreEqual } from './object-item-details';
 import ItemBasics from './object-item-basics';
 
@@ -26,6 +28,7 @@ interface Props {
     labels: any[];
     attributes: any[];
     collapsed: boolean;
+    canvasInstance: Canvas | Canvas3d;
 
     activate(): void;
     copy(): void;
@@ -96,6 +99,7 @@ function ObjectItemComponent(props: Props): JSX.Element {
         collapse,
         resetCuboidPerspective,
         activateTracking,
+        canvasInstance,
     } = props;
 
     const type =
@@ -117,6 +121,7 @@ function ObjectItemComponent(props: Props): JSX.Element {
                 style={{ backgroundColor: `${color}88` }}
             >
                 <ItemBasics
+                    canvasInstance={canvasInstance}
                     readonly={readonly}
                     serverID={serverID}
                     clientID={clientID}

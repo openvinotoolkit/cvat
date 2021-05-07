@@ -2,10 +2,15 @@
 //
 // SPDX-License-Identifier: MIT
 
-import { Canvas3dModel, Mode, DrawData } from './canvas3dModel';
+import {
+    Canvas3dModel, Mode, DrawData, ActiveElement, FocusData,
+} from './canvas3dModel';
 
 export interface Canvas3dController {
     readonly drawData: DrawData;
+    readonly activeElement: ActiveElement;
+    readonly selected: any;
+    readonly focused: FocusData;
     mode: Mode;
 }
 
@@ -26,5 +31,17 @@ export class Canvas3dControllerImpl implements Canvas3dController {
 
     public get drawData(): DrawData {
         return this.model.data.drawData;
+    }
+
+    public get activeElement(): ActiveElement {
+        return this.model.data.activeElement;
+    }
+
+    public get selected(): any {
+        return this.model.data.selected;
+    }
+
+    public get focused(): any {
+        return this.model.data.focusData;
     }
 }

@@ -29,7 +29,7 @@
         > .ant-collapse-content {
             background: $background-color-2;
             border-bottom: none;
-            height: 230px;
+            padding-bottom: $grid-unit-size * 3;
 
             > .ant-collapse-content-box {
                 padding: 10px;

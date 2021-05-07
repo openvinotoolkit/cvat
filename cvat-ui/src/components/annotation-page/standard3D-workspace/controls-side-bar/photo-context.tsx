@@ -6,11 +6,12 @@ import React from 'react';
 import CameraIcon from '@ant-design/icons/CameraOutlined';
 
 import CVATTooltip from 'components/common/cvat-tooltip';
-import { Canvas3d as Canvas } from 'cvat-canvas3d-wrapper';
+import { Canvas3d } from 'cvat-canvas3d-wrapper';
+import { Canvas } from 'cvat-canvas-wrapper';
 import { ActiveControl } from 'reducers/interfaces';
 
 interface Props {
-    canvasInstance: Canvas;
+    canvasInstance: Canvas3d | Canvas;
     activeControl: ActiveControl;
     hideShowContextImage: (hidden: boolean) => void;
     contextImageHide: boolean;

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -24,6 +24,8 @@ import {
 import ObjectStateItemComponent from 'components/annotation-page/standard-workspace/objects-side-bar/object-item';
 import { ToolsControlComponent } from 'components/annotation-page/standard-workspace/controls-side-bar/tools-control';
 import { shift } from 'utils/math';
+import { Canvas } from 'cvat-canvas-wrapper';
+import { Canvas3d } from 'cvat-canvas3d-wrapper';
 
 interface OwnProps {
     readonly: boolean;
@@ -47,6 +49,7 @@ interface StateToProps {
     maxZLayer: number;
     normalizedKeyMap: Record<string, string>;
     aiToolsRef: MutableRefObject<ToolsControlComponent>;
+    canvasInstance: Canvas | Canvas3d;
 }
 
 interface DispatchToProps {
@@ -72,7 +75,7 @@ function mapStateToProps(state: CombinedState, own: OwnProps): StateToProps {
             player: {
                 frame: { number: frameNumber },
             },
-            canvas: { ready, activeControl },
+            canvas: { instance: canvasInstance, ready, activeControl },
             aiToolsRef,
         },
         settings: {
@@ -103,6 +106,7 @@ function mapStateToProps(state: CombinedState, own: OwnProps): StateToProps {
         maxZLayer,
         normalizedKeyMap,
         aiToolsRef,
+        canvasInstance,
     };
 }
 
@@ -343,6 +347,7 @@ class ObjectItemContainer extends React.PureComponent<Props> {
             colorBy,
             normalizedKeyMap,
             readonly,
+            canvasInstance,
         } = this.props;
 
         let stateColor = '';
@@ -356,6 +361,7 @@ class ObjectItemContainer extends React.PureComponent<Props> {
 
         return (
             <ObjectStateItemComponent
+                canvasInstance={canvasInstance}
                 readonly={readonly}
                 activated={activated}
                 objectType={objectState.objectType}

@@ -154,10 +154,13 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
 
             const isReview = job.status === TaskStatus.REVIEW;
             let workspaceSelected = Workspace.STANDARD;
+            let activeShapeType = ShapeType.RECTANGLE;
 
             if (job.task.dimension === DimensionType.DIM_3D) {
                 workspaceSelected = Workspace.STANDARD3D;
+                activeShapeType = ShapeType.CUBOID;
             }
+
             return {
                 ...state,
                 job: {
@@ -198,6 +201,7 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
                     ...state.drawing,
                     activeLabelID: job.task.labels.length ? job.task.labels[0].id : null,
                     activeObjectType: job.task.mode === 'interpolation' ? ObjectType.TRACK : ObjectType.SHAPE,
+                    activeShapeType,
                 },
                 canvas: {
                     ...state.canvas,

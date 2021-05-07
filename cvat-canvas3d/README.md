@@ -26,11 +26,19 @@ npm run build -- --mode=development     # without a minification
 
 ```ts
 interface Canvas3d {
-  html(): HTMLDivElement;
-  setup(frameData: any): void;
-  mode(): Mode;
+  html(): ViewsDOM;
+  setup(frameData: any, objectStates: any[]): void;
   isAbleToChangeFrame(): boolean;
+  mode(): Mode;
   render(): void;
+  keyControls(keys: KeyboardEvent): void;
+  draw(drawData: DrawData): void;
+  cancel(): void;
+  dragCanvas(enable: boolean): void;
+  activate(clientID: number | null, attributeID?: number): void;
+  configureShapes(shapeProperties: ShapeProperties): void;
+  fitCanvas(): void;
+  fit(): void;
 }
 ```
 
@@ -44,5 +52,9 @@ console.log('Version ', window.canvas.CanvasVersion);
 console.log('Current mode is ', window.canvas.mode());
 
 // Put canvas to a html container
-htmlContainer.appendChild(canvas.html());
+const views = canvas.html();
+htmlContainer.appendChild(views.perspective);
+htmlContainer.appendChild(views.top);
+htmlContainer.appendChild(views.side);
+htmlContainer.appendChild(views.front);
 ```

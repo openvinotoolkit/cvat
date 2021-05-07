@@ -50,10 +50,11 @@ import {
 } from 'reducers/interfaces';
 
 import { Canvas } from 'cvat-canvas-wrapper';
+import { Canvas3d } from 'cvat-canvas3d-wrapper';
 
 interface StateToProps {
     sidebarCollapsed: boolean;
-    canvasInstance: Canvas;
+    canvasInstance: Canvas | Canvas3d;
     jobInstance: any;
     activatedStateID: number | null;
     activatedAttributeID: number | null;

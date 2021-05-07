@@ -57,7 +57,6 @@ interface Props {
     onUndoClick(): void;
     onRedoClick(): void;
     jobInstance: any;
-    hideShowContextImage(): any;
 }
 
 export default function AnnotationTopBarComponent(props: Props): JSX.Element {

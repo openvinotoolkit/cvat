@@ -10,7 +10,7 @@ import { SettingsActionTypes } from 'actions/settings-actions';
 import { AnnotationActionTypes } from 'actions/annotation-actions';
 
 import {
-    SettingsState, GridColor, FrameSpeed, ColorBy,
+    SettingsState, GridColor, FrameSpeed, ColorBy, DimensionType,
 } from './interfaces';
 
 const defaultState: SettingsState = {
@@ -298,6 +298,15 @@ export default (state = defaultState, action: AnyAction): SettingsState => {
                 player: {
                     ...state.player,
                     resetZoom: job && job.task.mode === 'annotation',
+                },
+                shapes: {
+                    ...defaultState.shapes,
+                    ...(job.task.dimension === DimensionType.DIM_3D ?
+                        {
+                            opacity: 40,
+                            selectedOpacity: 60,
+                        } :
+                        {}),
                 },
             };
         }

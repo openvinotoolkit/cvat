@@ -19,8 +19,17 @@ context('Canvas 3D functionality. Control button. Mouse interaction.', () => {
         arrow,
     ) {
         cy.get('.cvat-canvas3d-perspective').screenshot(screenshotNameBefore);
-        arrow ? cy.get(button).click() : cy.contains('button', new RegExp(`^${button}$`)).click();
+        cy.wait(300);
+        arrow
+            ? cy.get(button).trigger('mouseover').click()
+            : cy
+                  .contains('button', new RegExp(`^${button}$`))
+                  .trigger('mouseover')
+                  .click();
         cy.contains(expectedTooltipText).should('exist').and('be.visible'); // Check tooltip
+        arrow
+            ? cy.get(button).should('exist').click()
+            : cy.contains('button', new RegExp(`^${button}$`)).click({ force: true });
         arrow
             ? cy.get(button).trigger('mouseout')
             : cy.contains('button', new RegExp(`^${button}$`)).trigger('mouseout');

@@ -20,9 +20,12 @@ import {
 } from 'icons';
 import CVATTooltip from 'components/common/cvat-tooltip';
 import { ObjectType, ShapeType, ColorBy } from 'reducers/interfaces';
+import { Canvas } from 'cvat-canvas-wrapper';
+import { Canvas3d } from 'cvat-canvas3d-wrapper';
 import ColorPicker from './color-picker';
 
 interface Props {
+    canvasInstance: Canvas | Canvas3d;
     readonly: boolean;
     serverID: number | undefined;
     locked: boolean;
@@ -227,23 +230,25 @@ function RemoveItem(props: ItemProps): JSX.Element {
 
 export default function ItemMenu(props: Props): JSX.Element {
     const {
-        readonly, shapeType, objectType, colorBy,
+        readonly, shapeType, objectType, colorBy, canvasInstance,
     } = props;
+
+    const is2D = canvasInstance instanceof Canvas;
 
     return (
         <Menu className='cvat-object-item-menu' selectable={false}>
             <CreateURLItem toolProps={props} />
             {!readonly && <MakeCopyItem toolProps={props} />}
             {!readonly && <PropagateItem toolProps={props} />}
-            {!readonly && objectType === ObjectType.TRACK && shapeType === ShapeType.RECTANGLE && (
+            {is2D && !readonly && objectType === ObjectType.TRACK && shapeType === ShapeType.RECTANGLE && (
                 <TrackingItem toolProps={props} />
             )}
-            {!readonly && [ShapeType.POLYGON, ShapeType.POLYLINE, ShapeType.CUBOID].includes(shapeType) && (
+            {is2D && !readonly && [ShapeType.POLYGON, ShapeType.POLYLINE, ShapeType.CUBOID].includes(shapeType) && (
                 <SwitchOrientationItem toolProps={props} />
             )}
-            {!readonly && shapeType === ShapeType.CUBOID && <ResetPerspectiveItem toolProps={props} />}
-            {!readonly && objectType !== ObjectType.TAG && <ToBackgroundItem toolProps={props} />}
-            {!readonly && objectType !== ObjectType.TAG && <ToForegroundItem toolProps={props} />}
+            {is2D && !readonly && shapeType === ShapeType.CUBOID && <ResetPerspectiveItem toolProps={props} />}
+            {is2D && objectType !== ObjectType.TAG && <ToBackgroundItem toolProps={props} />}
+            {is2D && !readonly && objectType !== ObjectType.TAG && <ToForegroundItem toolProps={props} />}
             {[ColorBy.INSTANCE, ColorBy.GROUP].includes(colorBy) && <SwitchColorItem toolProps={props} />}
             {!readonly && <RemoveItem toolProps={props} />}
         </Menu>

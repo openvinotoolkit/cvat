@@ -27,6 +27,7 @@ import {
 } from 'actions/annotation-actions';
 import AnnotationTopBarComponent from 'components/annotation-page/top-bar/top-bar';
 import { Canvas } from 'cvat-canvas-wrapper';
+import { Canvas3d } from 'cvat-canvas3d-wrapper';
 import {
     CombinedState, FrameSpeed, Workspace, PredictorState,
 } from 'reducers/interfaces';
@@ -50,7 +51,7 @@ interface StateToProps {
     workspace: Workspace;
     keyMap: KeyMap;
     normalizedKeyMap: Record<string, string>;
-    canvasInstance: Canvas;
+    canvasInstance: Canvas | Canvas3d;
     forceExit: boolean;
     predictor: PredictorState;
     isTrainingActive: boolean;
