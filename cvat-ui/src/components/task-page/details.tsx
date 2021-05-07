@@ -5,7 +5,7 @@
 import React from 'react';
 import { Row, Col } from 'antd/lib/grid';
 import Tag from 'antd/lib/tag';
-import { CheckCircleOutlined, LoadingOutlined, WarningOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloudSyncOutlined, LoadingOutlined, WarningOutlined } from '@ant-design/icons';
 import Modal from 'antd/lib/modal';
 import notification from 'antd/lib/notification';
 import Text from 'antd/lib/typography/Text';
@@ -17,6 +17,7 @@ import { getReposData, syncRepos } from 'utils/git-utils';
 import { ActiveInference } from 'reducers/interfaces';
 import AutomaticAnnotationProgress from 'components/tasks-page/automatic-annotation-progress';
 import Descriptions from 'antd/lib/descriptions';
+import { Button } from 'antd';
 import UserSelector, { User } from './user-selector';
 import BugTrackerEditor from './bug-tracker-editor';
 import LabelsEditorComponent from '../labels-editor/labels-editor';
@@ -32,6 +33,7 @@ interface Props {
     projectSubsets: string[];
     cancelAutoAnnotation(): void;
     onTaskUpdate: (taskInstance: any) => void;
+    onClowderSync: (taskInstance: any) => void;
 }
 
 interface State {
@@ -147,6 +149,19 @@ export default class DetailsComponent extends React.PureComponent<Props, State> 
                 className='cvat-text-color'
             >
                 {name}
+            </Title>
+        );
+    }
+
+    private renderClowderSyncButton(): JSX.Element {
+        const { taskInstance, onClowderSync } = this.props;
+
+        return (
+            <Title level={4}>
+                <Button type='link' onClick={() => onClowderSync(taskInstance)}>
+                    <CloudSyncOutlined />
+                    Clowder Sync
+                </Button>
             </Title>
         );
     }
@@ -324,14 +339,13 @@ export default class DetailsComponent extends React.PureComponent<Props, State> 
     }
 
     public render(): JSX.Element {
-        const {
-            activeInference, cancelAutoAnnotation, taskInstance, onTaskUpdate,
-        } = this.props;
+        const { activeInference, cancelAutoAnnotation, taskInstance, onTaskUpdate } = this.props;
 
         return (
             <div className='cvat-task-details'>
-                <Row justify='start' align='middle'>
+                <Row justify='space-between' align='middle'>
                     <Col className='cvat-task-details-task-name'>{this.renderTaskName()}</Col>
+                    <Col>{this.renderClowderSyncButton()}</Col>
                 </Row>
                 <Row justify='space-between' align='top'>
                     <Col md={8} lg={7} xl={7} xxl={6}>

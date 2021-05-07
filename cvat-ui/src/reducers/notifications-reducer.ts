@@ -16,6 +16,7 @@ import { NotificationsActionType } from 'actions/notification-actions';
 import { BoundariesActionTypes } from 'actions/boundaries-actions';
 import { UserAgreementsActionTypes } from 'actions/useragreements-actions';
 import { ReviewActionTypes } from 'actions/review-actions';
+import { ClowderActionTypes } from 'actions/clowder-actions';
 
 import { NotificationsState } from './interfaces';
 
@@ -94,6 +95,9 @@ const defaultState: NotificationsState = {
         userAgreements: {
             fetching: null,
         },
+        clowder: {
+            fetching: null,
+        },
         review: {
             commentingIssue: null,
             finishingIssue: null,
@@ -109,6 +113,7 @@ const defaultState: NotificationsState = {
     messages: {
         tasks: {
             loadingDone: '',
+            clowderSyncingDone: '',
         },
         models: {
             inferenceDone: '',
@@ -503,6 +508,35 @@ export default function (state = defaultState, action: AnyAction): Notifications
                                 `<a href="/project/${projectId}" target="_blank">project ${projectId}</a>`,
                             reason: action.payload.error.toString(),
                             className: 'cvat-notification-notice-delete-project-failed',
+                        },
+                    },
+                },
+            };
+        }
+        case AnnotationActionTypes.SYNC_JOB_TASK_WITH_CLOWDER_SUCCESS:
+        case TasksActionTypes.SYNC_TASK_WITH_CLOWDER_SUCCESS: {
+            return {
+                ...state,
+                messages: {
+                    ...state.messages,
+                    tasks: {
+                        ...state.messages.tasks,
+                        clowderSyncingDone: 'Synchronization successfully done.',
+                    },
+                },
+            };
+        }
+        case AnnotationActionTypes.SYNC_JOB_TASK_WITH_CLOWDER_FAILED:
+        case TasksActionTypes.SYNC_TASK_WITH_CLOWDER_FAILED: {
+            return {
+                ...state,
+                errors: {
+                    ...state.errors,
+                    tasks: {
+                        ...state.errors.tasks,
+                        creating: {
+                            message: 'Sync failed. Please, try again.',
+                            reason: action.payload.error.toString(),
                         },
                     },
                 },
@@ -981,6 +1015,36 @@ export default function (state = defaultState, action: AnyAction): Notifications
                         ...state.errors.userAgreements,
                         fetching: {
                             message: 'Could not get user agreements from the server',
+                            reason: action.payload.error.toString(),
+                        },
+                    },
+                },
+            };
+        }
+        case ClowderActionTypes.GET_CLOWDER_ROOT_FILES_FAILED: {
+            return {
+                ...state,
+                errors: {
+                    ...state.errors,
+                    clowder: {
+                        ...state.errors.clowder,
+                        fetching: {
+                            message: 'Clowder dataset not found',
+                            reason: action.payload.error.toString(),
+                        },
+                    },
+                },
+            };
+        }
+        case ClowderActionTypes.GET_CLOWDER_FOLDER_FILES_FAILED: {
+            return {
+                ...state,
+                errors: {
+                    ...state.errors,
+                    clowder: {
+                        ...state.errors.clowder,
+                        fetching: {
+                            message: 'Problem with folder opening. Please, try again.',
                             reason: action.payload.error.toString(),
                         },
                     },

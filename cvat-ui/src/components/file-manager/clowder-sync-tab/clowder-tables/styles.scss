@@ -1,0 +1,46 @@
+// Copyright (C) 2020 Intel Corporation
+//
+// SPDX-License-Identifier: MIT
+
+@import 'base.scss';
+
+.cvat-clowder-table .ant-table > .ant-table-content > .ant-table-body {
+    margin: 0;
+}
+
+.cvat-clowder-table .ant-table > .ant-table-content .ant-table-header {
+    background-color: #fafafa;
+}
+
+.cvat-clowder-table-cell {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.cvat-clowder-table-cell-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cvat-clowder-table-cell-text-duplicate {
+    color: red;
+}
+
+.cvat-clowder-table-link-btn,
+.cvat-clowder-table-link-btn-disabled {
+    background: none;
+    border: none;
+    padding: 0;
+
+    &:focus,
+    &:active {
+        outline: none;
+    }
+}
+
+.cvat-clowder-table-link-btn {
+    cursor: pointer;
+    color: #1890ff;
+}

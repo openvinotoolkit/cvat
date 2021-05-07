@@ -1,0 +1,28 @@
+// Copyright (C) 2020 Intel Corporation
+//
+// SPDX-License-Identifier: MIT
+
+@import 'base.scss';
+
+.cvat-clowder-top-panel-separator {
+    height: 1.4em;
+    margin: 0 16px;
+}
+
+.cvat-clowder-top-panel-btn {
+    height: 100%;
+}
+
+.cvat-clowder-top-panel-breadcrumb {
+    word-break: break-all;
+
+    > span .ant-breadcrumb-link {
+        color: #1890ff;
+        font-weight: 500;
+    }
+
+    > span:last-child .ant-breadcrumb-link {
+        color: black;
+        font-weight: 500;
+    }
+}

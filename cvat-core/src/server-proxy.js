@@ -465,6 +465,16 @@
                 }
             }
 
+            async function clowderSyncTask(id) {
+                const { backendAPI } = config;
+
+                try {
+                    await Axios.get(`${backendAPI}/clowder-sync/task-export/${id}`);
+                } catch (errorData) {
+                    throw generateError(errorData);
+                }
+            }
+
             async function exportDataset(id, format) {
                 const { backendAPI } = config;
                 let url = `${backendAPI}/tasks/${id}/dataset?format=${format}`;
@@ -535,7 +545,13 @@
                 for (const [key, value] of Object.entries(taskDataSpec)) {
                     if (Array.isArray(value)) {
                         value.forEach((element, idx) => {
-                            taskData.append(`${key}[${idx}]`, element);
+                            if (typeof element === 'object' && element.clowderid) {
+                                Object.entries(element).forEach(([elKey, elValue]) => {
+                                    taskData.append(`${key}[${idx}]${elKey}`, elValue);
+                                });
+                            } else {
+                                taskData.append(`${key}[${idx}]`, element);
+                            }
                         });
                     } else {
                         taskData.set(key, value);
@@ -580,6 +596,52 @@
 
                 const createdTask = await getTasks(`?id=${response.id}`);
                 return createdTask[0];
+            }
+
+            async function getClowderRootFiles(datasetId, clowderApiKey) {
+                const { backendAPI } = config;
+                const data = JSON.stringify({
+                    api_key: clowderApiKey,
+                });
+
+                let response = null;
+                try {
+                    response = await Axios.post(`${backendAPI}/clowder-sync/datasets/${datasetId}`, data, {
+                        proxy: config.proxy,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                } catch (errorData) {
+                    throw generateError(errorData);
+                }
+
+                return response.data;
+            }
+
+            async function getClowderFolderFiles(datasetId, folderId, clowderApiKey) {
+                const { backendAPI } = config;
+                const data = JSON.stringify({
+                    api_key: clowderApiKey,
+                });
+
+                let response = null;
+                try {
+                    response = await Axios.post(
+                        `${backendAPI}/clowder-sync/datasets/${datasetId}/folder/${folderId}`,
+                        data,
+                        {
+                            proxy: config.proxy,
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        },
+                    );
+                } catch (errorData) {
+                    throw generateError(errorData);
+                }
+
+                return response.data;
             }
 
             async function getJob(jobID) {
@@ -1160,6 +1222,7 @@
                             saveTask,
                             createTask,
                             deleteTask,
+                            clowderSync: clowderSyncTask,
                             exportDataset,
                         }),
                         writable: false,
@@ -1174,6 +1237,9 @@
                                 get: getJobReviews,
                                 create: createReview,
                             },
+                            getJob,
+                            saveJob,
+                            clowderSync: clowderSyncTask,
                         }),
                         writable: false,
                     },
@@ -1237,6 +1303,13 @@
                             create: createComment,
                         }),
                         writable: false,
+                    },
+
+                    clowder: {
+                        value: Object.freeze({
+                            getRootFiles: getClowderRootFiles,
+                            getFolderFiles: getClowderFolderFiles,
+                        }),
                     },
 
                     predictor: {

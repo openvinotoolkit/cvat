@@ -35,10 +35,10 @@ function PopoverContent(props: LabelKeySelectorPopoverContentProps): JSX.Element
                 <Row justify='space-around' gutter={[16, 16]} key={i_}>
                     {arr.map((i) => {
                         const previousLabelID = keyToLabelMapping[i];
-                        const labelName = Number.isInteger(previousLabelID) ?
-                            labels.filter((label: any): boolean => label.id === previousLabelID)[0]?.name ||
-                              'undefined' :
-                            'None';
+                        const labelName = Number.isInteger(previousLabelID)
+                            ? labels.filter((label: any): boolean => label.id === previousLabelID)[0]?.name ||
+                              'undefined'
+                            : 'None';
 
                         return (
                             <Col key={i} span={8}>
@@ -60,21 +60,19 @@ function PopoverContent(props: LabelKeySelectorPopoverContentProps): JSX.Element
 const MemoizedContent = React.memo(PopoverContent);
 
 function LabelKeySelectorPopover(props: LabelKeySelectorPopoverProps): JSX.Element {
-    const {
-        children, labelID, updateLabelShortcutKey, keyToLabelMapping,
-    } = props;
+    const { children, labelID, updateLabelShortcutKey, keyToLabelMapping } = props;
 
     return (
         <Popover
             destroyTooltipOnHide={{ keepParent: false }}
             trigger='click'
-            content={(
+            content={
                 <MemoizedContent
                     keyToLabelMapping={keyToLabelMapping}
                     labelID={labelID}
                     updateLabelShortcutKey={updateLabelShortcutKey}
                 />
-            )}
+            }
             placement='left'
         >
             {children}

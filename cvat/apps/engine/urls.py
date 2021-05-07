@@ -71,5 +71,9 @@ urlpatterns = [
 
     # entry point for API
     path('api/v1/auth/', include('cvat.apps.authentication.urls')),
-    path('api/v1/', include((router.urls, 'cvat'), namespace='v1'))
+    path('api/v1/', include((router.urls, 'cvat'), namespace='v1')),
+
+    path('api/v1/clowder-sync/datasets/<str:dataset_id>', views.clowder_dataset_root_contents),
+    path('api/v1/clowder-sync/datasets/<str:dataset_id>/folder/<str:folder_id>', views.clowder_folder_contents),
+    path('api/v1/clowder-sync/task-export/<str:task_id>', views.clowder_export_task)
 ]

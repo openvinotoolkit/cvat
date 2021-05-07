@@ -92,6 +92,7 @@ class Data(models.Model):
         default=DataChoice.IMAGESET)
     storage_method = models.CharField(max_length=15, choices=StorageMethodChoice.choices(), default=StorageMethodChoice.FILE_SYSTEM)
     storage = models.CharField(max_length=15, choices=StorageChoice.choices(), default=StorageChoice.LOCAL)
+    clowder_api_key = models.CharField(max_length=36, blank=True, default="")
 
     class Meta:
         default_permissions = ()
@@ -298,6 +299,16 @@ class ServerFile(models.Model):
 class RemoteFile(models.Model):
     data = models.ForeignKey(Data, on_delete=models.CASCADE, null=True, related_name='remote_files')
     file = models.CharField(max_length=1024)
+
+    class Meta:
+        default_permissions = ()
+
+
+class ClowderFile(models.Model):
+    data = models.ForeignKey(Data, on_delete=models.CASCADE, null=True, related_name='clowder_files')
+    clowderid = models.CharField(max_length=1024)
+    name = models.CharField(max_length=2048)
+    srcdatasetid = models.CharField(max_length=1024)
 
     class Meta:
         default_permissions = ()

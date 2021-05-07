@@ -9,6 +9,7 @@
   "dependencies": {},
   "devDependencies": {
     "@istanbuljs/nyc-config-babel": "^1.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
     "babel-plugin-istanbul": "^6.0.0",
     "babel-register": "^6.26.0",
     "coveralls": "^3.1.0",

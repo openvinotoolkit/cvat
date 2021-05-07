@@ -635,6 +635,56 @@ function build() {
             },
         },
         /**
+         * Namespace to working with clowder
+         * @namespace clowder
+         * @memberof module:API.cvat
+         */
+        clowder: {
+            /**
+             * @typedef {Object} ClowderFile
+             * @property {string} clowderid clowder dataset id
+             * @property {string} name filename
+             * @property {boolean} is_file is it folder or file
+             * @global
+             */
+
+            /**
+             * Method returns list of root files and folders from clowder dataset
+             * @method getRootFiles
+             * @async
+             * @memberof module:API.cvat.clowder
+             * @param {string} datasetId
+             * @param {string} clowderApiKey
+             * @returns {ClowderFile[]}
+             * @throws {module:API.cvat.exceptions.ServerError}
+             */
+            async getRootFiles(datasetId, clowderApiKey) {
+                const result = await PluginRegistry.apiWrapper(cvat.clowder.getRootFiles, datasetId, clowderApiKey);
+                return result;
+            },
+
+            /**
+             * Method returns list of files and folders from specific clowder dataset folder
+             * @method getFolderFiles
+             * @async
+             * @memberof module:API.cvat.clowder
+             * @param {string} datasetId
+             * @param {string} folderId
+             * @param {string} clowderApiKey
+             * @returns {ClowderFile[]}
+             * @throws {module:API.cvat.exceptions.ServerError}
+             */
+            async getFolderFiles(datasetId, folderId, clowderApiKey) {
+                const result = await PluginRegistry.apiWrapper(
+                    cvat.clowder.getFolderFiles,
+                    datasetId,
+                    folderId,
+                    clowderApiKey,
+                );
+                return result;
+            },
+        },
+        /**
          * Namespace to working with logs
          * @namespace logger
          * @memberof module:API.cvat
@@ -777,6 +827,7 @@ function build() {
     cvat.lambda = Object.freeze(cvat.lambda);
     cvat.client = Object.freeze(cvat.client);
     cvat.enums = Object.freeze(cvat.enums);
+    cvat.clowder = Object.freeze(cvat.clowder);
 
     const implementAPI = require('./api-implementation');
 

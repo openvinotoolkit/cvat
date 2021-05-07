@@ -35,6 +35,9 @@ export enum TasksActionTypes {
     UPDATE_TASK_SUCCESS = 'UPDATE_TASK_SUCCESS',
     UPDATE_TASK_FAILED = 'UPDATE_TASK_FAILED',
     HIDE_EMPTY_TASKS = 'HIDE_EMPTY_TASKS',
+    SYNC_TASK_WITH_CLOWDER = 'SYNC_TASK_WITH_CLOWDER',
+    SYNC_TASK_WITH_CLOWDER_SUCCESS = 'SYNC_TASK_WITH_CLOWDER_SUCCESS',
+    SYNC_TASK_WITH_CLOWDER_FAILED = 'SYNC_TASK_WITH_CLOWDER_FAILED',
 }
 
 function getTasks(): AnyAction {
@@ -357,14 +360,17 @@ function createTaskUpdateStatus(status: string): AnyAction {
     return action;
 }
 
-export function createTaskAsync(data: any): ThunkAction<Promise<void>, {}, {}, AnyAction> {
-    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+export function createTaskAsync(data: any): ThunkAction<Promise<void>, CombinedState, {}, AnyAction> {
+    return async (dispatch: ActionCreator<Dispatch>, getState): Promise<void> => {
+        const { apiKey } = getState().clowder;
+
         const description: any = {
             name: data.basic.name,
             labels: data.labels,
             image_quality: 70,
             use_zip_chunks: data.advanced.useZipChunks,
             use_cache: data.advanced.useCache,
+            ...(apiKey ? { clowder_api_key: apiKey } : {}),
         };
 
         if (data.projectId) {
@@ -400,11 +406,16 @@ export function createTaskAsync(data: any): ThunkAction<Promise<void>, {}, {}, A
         if (data.subset) {
             description.subset = data.subset;
         }
+        if (apiKey) {
+            description.clowder_api_key = apiKey;
+        }
 
         const taskInstance = new cvat.classes.Task(description);
+
         taskInstance.clientFiles = data.files.local;
         taskInstance.serverFiles = data.files.share;
         taskInstance.remoteFiles = data.files.remote;
+        taskInstance.clowderFiles = data.files.clowder;
 
         if (data.advanced.repository) {
             const [gitPlugin] = (await cvat.plugins.list()).filter((plugin: any): boolean => plugin.name === 'Git');
@@ -518,4 +529,41 @@ export function hideEmptyTasks(hideEmpty: boolean): AnyAction {
     };
 
     return action;
+}
+
+function syncTaskWithClowder(): AnyAction {
+    const action = {
+        type: TasksActionTypes.SYNC_TASK_WITH_CLOWDER,
+    };
+
+    return action;
+}
+
+function syncTaskWithClowderSuccess(): AnyAction {
+    const action = {
+        type: TasksActionTypes.SYNC_TASK_WITH_CLOWDER_SUCCESS,
+    };
+
+    return action;
+}
+
+function syncTaskWithClowderFailed(error: any): AnyAction {
+    const action = {
+        type: TasksActionTypes.SYNC_TASK_WITH_CLOWDER_FAILED,
+        payload: { error },
+    };
+
+    return action;
+}
+
+export function syncTaskWithClowderAsync(taskInstance: any): ThunkAction<Promise<void>, CombinedState, {}, AnyAction> {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        try {
+            dispatch(syncTaskWithClowder());
+            await taskInstance.clowderSync();
+            dispatch(syncTaskWithClowderSuccess());
+        } catch (error) {
+            dispatch(syncTaskWithClowderFailed(error));
+        }
+    };
 }

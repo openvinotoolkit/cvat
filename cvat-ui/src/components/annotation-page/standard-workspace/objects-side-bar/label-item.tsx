@@ -6,9 +6,7 @@ import React from 'react';
 import { Row, Col } from 'antd/lib/grid';
 import Button from 'antd/lib/button';
 import Text from 'antd/lib/typography/Text';
-import {
-    LockFilled, UnlockOutlined, EyeInvisibleFilled, EyeOutlined,
-} from '@ant-design/icons';
+import { LockFilled, UnlockOutlined, EyeInvisibleFilled, EyeOutlined } from '@ant-design/icons';
 
 import CVATTooltip from 'components/common/cvat-tooltip';
 import LabelKeySelectorPopover from './label-key-selector-popover';

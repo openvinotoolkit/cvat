@@ -27,7 +27,7 @@ from drf_yasg import openapi
 from drf_yasg.inspectors import CoreAPICompatInspector, NotHandled
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, serializers, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import APIException, NotFound, ValidationError
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -39,6 +39,7 @@ import cvat.apps.dataset_manager.views  # pylint: disable=unused-import
 from cvat.apps.authentication import auth
 from cvat.apps.dataset_manager.bindings import CvatImportError
 from cvat.apps.dataset_manager.serializers import DatasetFormatsSerializer
+from cvat.apps.engine.clowder_api import ClowderApi
 from cvat.apps.engine.frame_provider import FrameProvider
 from cvat.apps.engine.models import (
     Job, StatusChoice, Task, Project, Review, Issue,
@@ -50,7 +51,7 @@ from cvat.apps.engine.serializers import (
     FileInfoSerializer, JobSerializer, LabeledDataSerializer,
     LogEventSerializer, ProjectSerializer, ProjectSearchSerializer, ProjectWithoutTaskSerializer,
     RqStatusSerializer, TaskSerializer, UserSerializer, PluginsSerializer, ReviewSerializer,
-    CombinedReviewSerializer, IssueSerializer, CombinedIssueSerializer, CommentSerializer
+    CombinedReviewSerializer, IssueSerializer, CombinedIssueSerializer, CommentSerializer, ClowderFileSerializer
 )
 from cvat.apps.engine.utils import av_scan_paths
 from . import models, task
@@ -976,6 +977,59 @@ class UserViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(request.user, context={ "request": request })
         return Response(serializer.data)
+
+# TODO: document for swagger
+@api_view(['POST'])
+def clowder_dataset_root_contents(request, dataset_id):
+    try:
+        if 'api_key' not in request.data:
+            raise PermissionError('Clowder api_key not provided')
+        content = _clowder_get_content(request.data['api_key'], dataset_id)
+        serializer = ClowderFileSerializer(data=content, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
+    except Exception as e:
+        return Response(str(e), status=status.HTTP_400_BAD_REQUEST, exception=True)
+
+@api_view(['POST'])
+def clowder_folder_contents(request, dataset_id, folder_id):
+    try:
+        if 'api_key' not in request.data:
+            raise PermissionError('Clowder api_key not provided')
+        content = _clowder_get_content(request.data['api_key'], dataset_id, folder_id)
+        serializer = ClowderFileSerializer(data=content, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
+    except Exception as e:
+        return Response(str(e), status=status.HTTP_400_BAD_REQUEST, exception=True)
+
+def _clowder_get_content(api_key, datasetid, folderid=None):
+    with ClowderApi(api_key) as clowder:
+        files = clowder.get_files(datasetid, folderid)
+        for file in files:
+            file['srcdatasetid'] = datasetid
+            file['is_file'] = True
+        folders_raw = clowder.get_folders(datasetid, folderid)
+        folders = [{
+            'clowderid': raw['id'],
+            'name': raw['path'][-1],
+            'is_file': False,
+            'srcdatasetid': datasetid
+        } for raw in folders_raw]
+        return folders + files
+
+@api_view(['GET'])
+def clowder_export_task(request, task_id):
+    try:
+        api_key = Task.objects.get(pk=task_id).data.clowder_api_key
+        if api_key == '': raise Exception(
+            'Task {} has no Clowder user API key assosiated with it, and cannot be exported to Clowder'
+            .format(task_id))
+        with ClowderApi(api_key) as clowder:
+            clowder.load_coco2clowder(task_id)
+        return Response(status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(str(e), status=status.HTTP_400_BAD_REQUEST, exception=True)
 
 def rq_handler(job, exc_type, exc_value, tb):
     job.exc_info = "".join(

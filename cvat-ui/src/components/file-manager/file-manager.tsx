@@ -16,22 +16,26 @@ import { EventDataNode } from 'rc-tree/lib/interface';
 import { InboxOutlined } from '@ant-design/icons';
 
 import consts from 'consts';
+import { ClowderFileDto } from 'reducers/interfaces';
+import ClowderSyncTab from './clowder-sync-tab/clowder-sync-tab';
 
 export interface Files {
     local: File[];
     share: string[];
     remote: string[];
+    clowder?: ClowderFileDto[];
 }
 
 interface State {
     files: Files;
     expandedKeys: string[];
-    active: 'local' | 'share' | 'remote';
+    active: 'local' | 'share' | 'remote' | 'clowder';
 }
 
 interface Props {
     withRemote: boolean;
     treeData: TreeNodeNormal[];
+    clowderFiles: ClowderFileDto[];
     onLoadData: (key: string, success: () => void, failure: () => void) => void;
     onChangeActiveKey(key: string): void;
 }
@@ -55,10 +59,12 @@ export default class FileManager extends React.PureComponent<Props, State> {
 
     public getFiles(): Files {
         const { active, files } = this.state;
+        const { clowderFiles } = this.props;
         return {
             local: active === 'local' ? files.local : [],
             share: active === 'share' ? files.share : [],
             remote: active === 'remote' ? files.remote : [],
+            clowder: active === 'clowder' ? clowderFiles : [],
         };
     }
 
@@ -127,7 +133,8 @@ export default class FileManager extends React.PureComponent<Props, State> {
         function renderTreeNodes(data: TreeNodeNormal[]): JSX.Element[] {
             // sort alphabetically
             data.sort((a: TreeNodeNormal, b: TreeNodeNormal): number =>
-                a.key.toLocaleString().localeCompare(b.key.toLocaleString()));
+                a.key.toLocaleString().localeCompare(b.key.toLocaleString()),
+            );
             return data.map((item: TreeNodeNormal) => {
                 if (item.children) {
                     return (
@@ -164,14 +171,15 @@ export default class FileManager extends React.PureComponent<Props, State> {
                         }}
                         onCheck={(
                             checkedKeys:
-                            | ReactText[]
-                            | {
-                                checked: ReactText[];
-                                halfChecked: ReactText[];
-                            },
+                                | ReactText[]
+                                | {
+                                      checked: ReactText[];
+                                      halfChecked: ReactText[];
+                                  },
                         ): void => {
                             const keys = (checkedKeys as ReactText[]).map((text: ReactText): string =>
-                                text.toLocaleString());
+                                text.toLocaleString(),
+                            );
                             this.setState({
                                 files: {
                                     ...files,
@@ -241,6 +249,10 @@ export default class FileManager extends React.PureComponent<Props, State> {
                     {this.renderLocalSelector()}
                     {this.renderShareSelector()}
                     {withRemote && this.renderRemoteSelector()}
+
+                    <Tabs.TabPane key='clowder' tab='Clowder Sync'>
+                        <ClowderSyncTab />
+                    </Tabs.TabPane>
                 </Tabs>
             </>
         );

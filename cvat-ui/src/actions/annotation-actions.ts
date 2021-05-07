@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 import { MutableRefObject } from 'react';
-import {
-    ActionCreator, AnyAction, Dispatch, Store,
-} from 'redux';
+import { ActionCreator, AnyAction, Dispatch, Store } from 'redux';
 import { ThunkAction } from 'utils/redux';
 import { RectDrawingMethod } from 'cvat-canvas-wrapper';
 import getCore from 'cvat-core-wrapper';
@@ -196,6 +194,9 @@ export enum AnnotationActionTypes {
     GET_PREDICTIONS_SUCCESS = 'GET_PREDICTIONS_SUCCESS',
     HIDE_SHOW_CONTEXT_IMAGE = 'HIDE_SHOW_CONTEXT_IMAGE',
     GET_CONTEXT_IMAGE = 'GET_CONTEXT_IMAGE',
+    SYNC_JOB_TASK_WITH_CLOWDER = 'SYNC_JOB_TASK_WITH_CLOWDER',
+    SYNC_JOB_TASK_WITH_CLOWDER_SUCCESS = 'SYNC_JOB_TASK_WITH_CLOWDER_SUCCESS',
+    SYNC_JOB_TASK_WITH_CLOWDER_FAILED = 'SYNC_JOB_TASK_WITH_CLOWDER_FAILED',
 }
 
 export function saveLogsAsync(): ThunkAction {
@@ -254,9 +255,7 @@ export function switchZLayer(cur: number): AnyAction {
 export function fetchAnnotationsAsync(): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
         try {
-            const {
-                filters, frame, showAllInterpolationTracks, jobInstance,
-            } = receiveAnnotationsParameters();
+            const { filters, frame, showAllInterpolationTracks, jobInstance } = receiveAnnotationsParameters();
             const states = await jobInstance.annotations.get(frame, showAllInterpolationTracks, filters);
             const [minZ, maxZ] = computeZRange(states);
 
@@ -626,9 +625,7 @@ export function getPredictionsAsync(): ThunkAction {
             predictor: { enabled, annotatedFrames },
         } = getStore().getState().annotation;
 
-        const {
-            filters, frame, showAllInterpolationTracks, jobInstance: job,
-        } = receiveAnnotationsParameters();
+        const { filters, frame, showAllInterpolationTracks, jobInstance: job } = receiveAnnotationsParameters();
         if (!enabled || currentStates.length || annotatedFrames.includes(frame)) return;
 
         dispatch({
@@ -1191,9 +1188,7 @@ export function splitTrack(enabled: boolean): AnyAction {
 
 export function updateAnnotationsAsync(statesToUpdate: any[]): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
-        const {
-            jobInstance, filters, frame, showAllInterpolationTracks,
-        } = receiveAnnotationsParameters();
+        const { jobInstance, filters, frame, showAllInterpolationTracks } = receiveAnnotationsParameters();
 
         try {
             if (statesToUpdate.some((state: any): boolean => state.updateFlags.zOrder)) {
@@ -1662,6 +1657,43 @@ export function getContextImage(): ThunkAction {
                     contextImageHide,
                 },
             });
+        }
+    };
+}
+
+function syncJobTaskWithClowder(): AnyAction {
+    const action = {
+        type: AnnotationActionTypes.SYNC_JOB_TASK_WITH_CLOWDER,
+    };
+
+    return action;
+}
+
+function syncJobTaskWithClowderSuccess(): AnyAction {
+    const action = {
+        type: AnnotationActionTypes.SYNC_JOB_TASK_WITH_CLOWDER_SUCCESS,
+    };
+
+    return action;
+}
+
+function syncJobTaskWithClowderFailed(error: any): AnyAction {
+    const action = {
+        type: AnnotationActionTypes.SYNC_JOB_TASK_WITH_CLOWDER_FAILED,
+        payload: { error },
+    };
+
+    return action;
+}
+
+export function syncJobTaskWithClowderAsync(jobInstance: any): ThunkAction<Promise<void>, AnyAction> {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        try {
+            dispatch(syncJobTaskWithClowder());
+            await jobInstance.clowderSync();
+            dispatch(syncJobTaskWithClowderSuccess());
+        } catch (error) {
+            dispatch(syncJobTaskWithClowderFailed(error));
         }
     };
 }

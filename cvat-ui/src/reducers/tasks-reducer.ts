@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2020-2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -84,9 +84,9 @@ export default (state: TasksState = defaultState, action: AnyAction): TasksState
             const { dumps } = state.activities;
 
             dumps[task.id] =
-                task.id in dumps && !dumps[task.id].includes(dumper.name) ?
-                    [...dumps[task.id], dumper.name] :
-                    dumps[task.id] || [dumper.name];
+                task.id in dumps && !dumps[task.id].includes(dumper.name)
+                    ? [...dumps[task.id], dumper.name]
+                    : dumps[task.id] || [dumper.name];
 
             return {
                 ...state,
@@ -122,9 +122,9 @@ export default (state: TasksState = defaultState, action: AnyAction): TasksState
             const { exports: activeExports } = state.activities;
 
             activeExports[task.id] =
-                task.id in activeExports && !activeExports[task.id].includes(exporter.name) ?
-                    [...activeExports[task.id], exporter.name] :
-                    activeExports[task.id] || [exporter.name];
+                task.id in activeExports && !activeExports[task.id].includes(exporter.name)
+                    ? [...activeExports[task.id], exporter.name]
+                    : activeExports[task.id] || [exporter.name];
 
             return {
                 ...state,
@@ -349,6 +349,20 @@ export default (state: TasksState = defaultState, action: AnyAction): TasksState
             return {
                 ...state,
                 hideEmpty: action.payload.hideEmpty,
+            };
+        }
+        case TasksActionTypes.SYNC_TASK_WITH_CLOWDER: {
+            return {
+                ...state,
+                updating: true,
+            };
+        }
+
+        case TasksActionTypes.SYNC_TASK_WITH_CLOWDER_SUCCESS:
+        case TasksActionTypes.SYNC_TASK_WITH_CLOWDER_FAILED: {
+            return {
+                ...state,
+                updating: false,
             };
         }
         case BoundariesActionTypes.RESET_AFTER_ERROR:

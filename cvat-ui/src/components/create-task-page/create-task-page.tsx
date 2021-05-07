@@ -19,12 +19,11 @@ interface Props {
     error: string;
     taskId: number | null;
     installedGit: boolean;
+    clowderSyncing: boolean;
 }
 
 export default function CreateTaskPage(props: Props): JSX.Element {
-    const {
-        error, status, taskId, onCreate, installedGit,
-    } = props;
+    const { error, status, taskId, onCreate, installedGit, clowderSyncing } = props;
 
     const location = useLocation();
 
@@ -67,7 +66,7 @@ export default function CreateTaskPage(props: Props): JSX.Element {
                 });
             }
         }
-    }, [error]);
+    }, [error, clowderSyncing]);
 
     return (
         <Row justify='center' align='top' className='cvat-create-task-form-wrapper'>
@@ -79,6 +78,7 @@ export default function CreateTaskPage(props: Props): JSX.Element {
                     status={status}
                     onCreate={onCreate}
                     installedGit={installedGit}
+                    clowderSyncing={clowderSyncing}
                 />
             </Col>
         </Row>

@@ -21,7 +21,7 @@ context('Hotkeys to change labels feature.', () => {
     const archivePath = `cypress/fixtures/${archiveName}`;
     const imagesFolder = `cypress/fixtures/${imageFileName}`;
     const directoryToArchive = imagesFolder;
-    const secondLabel = `Case ${caseId} second`
+    const secondLabel = `Case ${caseId} second`;
     let firstLabelCurrentVal = '';
     let secondLabelCurrentVal = '';
 
@@ -85,12 +85,16 @@ context('Hotkeys to change labels feature.', () => {
             // Set settings "Always show object details" to check issue 3083
             testCheckingAlwaysShowObjectDetails(true);
             cy.createPolygon(createPolygonShape);
-            cy.get('#cvat-objects-sidebar-state-item-1').find('.cvat-objects-sidebar-state-item-label-selector').should('have.text', firstLabelCurrentVal);
+            cy.get('#cvat-objects-sidebar-state-item-1')
+                .find('.cvat-objects-sidebar-state-item-label-selector')
+                .should('have.text', firstLabelCurrentVal);
             cy.get('.cvat-canvas-container').click(270, 260);
             cy.get('#cvat_canvas_shape_1').should('have.class', 'cvat_canvas_shape_activated');
             cy.contains('tspan', `${firstLabelCurrentVal} 1 (manual)`).should('be.visible');
-            cy.get('body').type('{Ctrl}2')
-            cy.get('#cvat-objects-sidebar-state-item-1').find('.cvat-objects-sidebar-state-item-label-selector').should('have.text', secondLabelCurrentVal);
+            cy.get('body').type('{Ctrl}2');
+            cy.get('#cvat-objects-sidebar-state-item-1')
+                .find('.cvat-objects-sidebar-state-item-label-selector')
+                .should('have.text', secondLabelCurrentVal);
             cy.contains('tspan', `${secondLabelCurrentVal} 1 (manual)`).should('be.visible');
             // Unset settings "Always show object details"
             testCheckingAlwaysShowObjectDetails();
@@ -105,7 +109,9 @@ context('Hotkeys to change labels feature.', () => {
             cy.get('body').type('{Ctrl}2');
             cy.contains(`Default label was changed to "${secondLabelCurrentVal}"`).should('exist');
             cy.get('.cvat-canvas-container').click(500, 500).click(600, 600);
-            cy.get('#cvat-objects-sidebar-state-item-2').find('.cvat-objects-sidebar-state-item-label-selector').should('have.text', secondLabelCurrentVal);
+            cy.get('#cvat-objects-sidebar-state-item-2')
+                .find('.cvat-objects-sidebar-state-item-label-selector')
+                .should('have.text', secondLabelCurrentVal);
         });
 
         it('Check changing shortcut for a label.', () => {
@@ -114,22 +120,26 @@ context('Hotkeys to change labels feature.', () => {
                 cy.contains('[role="tab"]', 'Labels').click();
             });
             cy.contains('.cvat-label-item-setup-shortcut-button', '1').click();
-            cy.get('.cvat-label-item-setup-shortcut-popover').should('be.visible').within(() => {
-                cy.get('[type="button"]').then(($btn) => {
-                    expect($btn[0].innerText).to.be.equal(`1:${firstLabelCurrentVal}`);
-                    expect($btn[1].innerText).to.be.equal(`2:${secondLabelCurrentVal}`);
-                    expect($btn[2].innerText).to.be.equal('3:None');
-                    // Click to "3" button
-                    cy.get($btn[2]).click();
+            cy.get('.cvat-label-item-setup-shortcut-popover')
+                .should('be.visible')
+                .within(() => {
+                    cy.get('[type="button"]').then(($btn) => {
+                        expect($btn[0].innerText).to.be.equal(`1:${firstLabelCurrentVal}`);
+                        expect($btn[1].innerText).to.be.equal(`2:${secondLabelCurrentVal}`);
+                        expect($btn[2].innerText).to.be.equal('3:None');
+                        // Click to "3" button
+                        cy.get($btn[2]).click();
+                    });
                 });
-            });
-            cy.get('.cvat-label-item-setup-shortcut-popover').should('be.visible').within(() => {
-                cy.get('[type="button"]').then(($btn) => {
-                    // Buttons 1 and 3 have changed values
-                    expect($btn[0].innerText).to.be.equal('1:None');
-                    expect($btn[2].innerText).to.be.equal(`3:${firstLabelCurrentVal}`);
+            cy.get('.cvat-label-item-setup-shortcut-popover')
+                .should('be.visible')
+                .within(() => {
+                    cy.get('[type="button"]').then(($btn) => {
+                        // Buttons 1 and 3 have changed values
+                        expect($btn[0].innerText).to.be.equal('1:None');
+                        expect($btn[2].innerText).to.be.equal(`3:${firstLabelCurrentVal}`);
+                    });
                 });
-            });
             cy.contains('.cvat-label-item-setup-shortcut-button', '3').should('exist');
             cy.get('.cvat-canvas-container').click(); // Hide shortcut popover
             // Go to "Objects" tab
@@ -141,7 +151,9 @@ context('Hotkeys to change labels feature.', () => {
             cy.get('#cvat_canvas_shape_1').should('have.class', 'cvat_canvas_shape_activated');
             cy.get('body').type('{Ctrl}3');
             cy.contains('tspan', `${firstLabelCurrentVal} 1 (manual)`).should('be.visible');
-            cy.get('#cvat-objects-sidebar-state-item-1').find('.cvat-objects-sidebar-state-item-label-selector').should('have.text', firstLabelCurrentVal);
+            cy.get('#cvat-objects-sidebar-state-item-1')
+                .find('.cvat-objects-sidebar-state-item-label-selector')
+                .should('have.text', firstLabelCurrentVal);
         });
     });
 });

@@ -302,6 +302,9 @@ export interface NotificationsState {
             commentingIssue: null | ErrorState;
             submittingReview: null | ErrorState;
         };
+        clowder: {
+            fetching: null | ErrorState;
+        };
         predictor: {
             prediction: null | ErrorState;
         };
@@ -309,6 +312,7 @@ export interface NotificationsState {
     messages: {
         tasks: {
             loadingDone: string;
+            clowderSyncingDone: string;
         };
         models: {
             inferenceDone: string;

@@ -27,9 +27,7 @@ interface Props {
 }
 
 export default function ControlsSideBarComponent(props: Props): JSX.Element {
-    const {
-        canvasInstance, activeControl, normalizedKeyMap, keyMap, rotateFrame, selectIssuePosition,
-    } = props;
+    const { canvasInstance, activeControl, normalizedKeyMap, keyMap, rotateFrame, selectIssuePosition } = props;
 
     const preventDefault = (event: KeyboardEvent | undefined): void => {
         if (event) {

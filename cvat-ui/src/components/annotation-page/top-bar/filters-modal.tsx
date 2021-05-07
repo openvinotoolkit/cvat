@@ -4,9 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    Builder, Config, ImmutableTree, JsonLogicTree, Query, Utils as QbUtils,
-} from 'react-awesome-query-builder';
+import { Builder, Config, ImmutableTree, JsonLogicTree, Query, Utils as QbUtils } from 'react-awesome-query-builder';
 import AntdWidgets from 'react-awesome-query-builder/lib/components/widgets/antd';
 import AntdConfig from 'react-awesome-query-builder/lib/config/antd';
 import 'react-awesome-query-builder/lib/css/styles.css';
@@ -184,9 +182,9 @@ function FiltersModalComponent(): JSX.Element {
 
     useEffect(() => {
         if (visible) {
-            const treeFromActiveFilters = activeFilters.length ?
-                QbUtils.checkTree(QbUtils.loadFromJsonLogic(activeFilters[0], config), config) :
-                null;
+            const treeFromActiveFilters = activeFilters.length
+                ? QbUtils.checkTree(QbUtils.loadFromJsonLogic(activeFilters[0], config), config)
+                : null;
             setState({
                 tree: treeFromActiveFilters || initialState.tree,
                 config,
@@ -277,9 +275,7 @@ function FiltersModalComponent(): JSX.Element {
             >
                 <Dropdown overlay={menu}>
                     <Button type='text'>
-                        Recently used
-                        {' '}
-                        <DownOutlined />
+                        Recently used <DownOutlined />
                     </Button>
                 </Dropdown>
             </div>

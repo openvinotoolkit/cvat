@@ -214,6 +214,26 @@ class RemoteFileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return instance.file if instance else instance
 
+class ClowderFileSerializer(serializers.ModelSerializer):
+    is_file = serializers.BooleanField(required=False)
+    created = serializers.DateTimeField(required=False)
+    class Meta:
+        model = models.ClowderFile
+        fields = ('clowderid', 'srcdatasetid', 'name', 'is_file', 'created')
+
+    # pylint: disable=no-self-use
+    def to_internal_value(self, data):
+        return {'clowderid': data['clowderid'], 'name': data['name'], 'srcdatasetid': data['srcdatasetid'],
+        'is_file': data['is_file'] if 'is_file' in data else True,
+        'created': data['created'] if 'created' in data else None}
+
+    # pylint: disable=no-self-use
+    def to_representation(self, instance):
+        return {'clowderid': instance.clowderid, 'name': instance.name, 'srcdatasetid': instance.srcdatasetid,
+        'is_file': instance.is_file if hasattr(instance, 'is_file') else True,
+        'created': instance.created if hasattr(instance, 'created') else None}
+
+
 class RqStatusSerializer(serializers.Serializer):
     state = serializers.ChoiceField(choices=[
         "Queued", "Started", "Finished", "Failed"])
@@ -271,14 +291,16 @@ class DataSerializer(serializers.ModelSerializer):
     client_files = ClientFileSerializer(many=True, default=[])
     server_files = ServerFileSerializer(many=True, default=[])
     remote_files = RemoteFileSerializer(many=True, default=[])
+    clowder_files = ClowderFileSerializer(many=True, default=[])
     use_cache = serializers.BooleanField(default=False)
     copy_data = serializers.BooleanField(default=False)
+    clowder_api_key = serializers.CharField(required=False)
 
     class Meta:
         model = models.Data
         fields = ('chunk_size', 'size', 'image_quality', 'start_frame', 'stop_frame', 'frame_filter',
-            'compressed_chunk_type', 'original_chunk_type', 'client_files', 'server_files', 'remote_files', 'use_zip_chunks',
-            'use_cache', 'copy_data')
+            'compressed_chunk_type', 'original_chunk_type', 'client_files', 'server_files', 'remote_files',
+            'clowder_files', 'use_zip_chunks', 'use_cache', 'copy_data', 'clowder_api_key')
 
     # pylint: disable=no-self-use
     def validate_frame_filter(self, value):
@@ -302,6 +324,15 @@ class DataSerializer(serializers.ModelSerializer):
 
     # pylint: disable=no-self-use
     def create(self, validated_data):
+
+        if 'clowder_api_key' in validated_data:
+            from cvat.apps.engine.clowder_api import ClowderApi
+            with ClowderApi(validated_data['clowder_api_key']) as clowder:
+                clowder_files = clowder.get_fullcontent(validated_data.pop('clowder_files'))
+        else:
+            clowder_files = []
+            validated_data.pop('clowder_files')
+
         client_files = validated_data.pop('client_files')
         server_files = validated_data.pop('server_files')
         remote_files = validated_data.pop('remote_files')
@@ -329,6 +360,10 @@ class DataSerializer(serializers.ModelSerializer):
         for f in remote_files:
             remote_file = models.RemoteFile(data=db_data, **f)
             remote_file.save()
+
+        for f in clowder_files:
+            clowder_file = models.ClowderFile(data=db_data, **f)
+            clowder_file.save()
 
         db_data.save()
         return db_data

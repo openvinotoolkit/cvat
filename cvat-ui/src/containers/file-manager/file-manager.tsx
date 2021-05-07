@@ -9,7 +9,7 @@ import { TreeNodeNormal } from 'antd/lib/tree/Tree';
 import FileManagerComponent, { Files } from 'components/file-manager/file-manager';
 
 import { loadShareDataAsync } from 'actions/share-actions';
-import { ShareItem, CombinedState } from 'reducers/interfaces';
+import { ShareItem, CombinedState, ClowderFileDto } from 'reducers/interfaces';
 
 interface OwnProps {
     ref: any;
@@ -19,6 +19,7 @@ interface OwnProps {
 
 interface StateToProps {
     treeData: TreeNodeNormal[];
+    clowderFiles: ClowderFileDto[];
 }
 
 interface DispatchToProps {
@@ -42,8 +43,10 @@ function mapStateToProps(state: CombinedState): StateToProps {
     }
 
     const { root } = state.share;
+    const { filesToUpload } = state.clowder;
     return {
         treeData: convert([root], ''),
+        clowderFiles: filesToUpload,
     };
 }
 
@@ -70,12 +73,13 @@ export class FileManagerContainer extends React.PureComponent<Props> {
 
     public render(): JSX.Element {
         const {
-            treeData, getTreeData, withRemote, onChangeActiveKey,
+            treeData, clowderFiles, getTreeData, withRemote, onChangeActiveKey,
         } = this.props;
 
         return (
             <FileManagerComponent
                 treeData={treeData}
+                clowderFiles={clowderFiles}
                 onLoadData={getTreeData}
                 onChangeActiveKey={onChangeActiveKey}
                 withRemote={withRemote}

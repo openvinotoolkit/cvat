@@ -1,0 +1,16 @@
+// Copyright (C) 2020 Intel Corporation
+//
+// SPDX-License-Identifier: MIT
+
+@import 'base.scss';
+
+.cvat-clowder-sync-tab-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.cvat-clowder-sync-tab-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}

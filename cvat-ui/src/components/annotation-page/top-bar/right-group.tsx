@@ -14,12 +14,8 @@ import Moment from 'react-moment';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 
-import {
-    FilterIcon, FullscreenIcon, InfoIcon, BrainIcon,
-} from 'icons';
-import {
-    CombinedState, DimensionType, Workspace, PredictorState,
-} from 'reducers/interfaces';
+import { FilterIcon, FullscreenIcon, InfoIcon, BrainIcon } from 'icons';
+import { CombinedState, DimensionType, Workspace, PredictorState } from 'reducers/interfaces';
 
 interface Props {
     workspace: Workspace;
@@ -75,9 +71,7 @@ function RightGroup(props: Props): JSX.Element {
             <br />
             {annotationAmount > 0 ? (
                 <span>
-                    Model mAP is
-                    {' '}
-                    {formattedScore}
+                    Model mAP is {formattedScore}
                     <br />
                 </span>
             ) : null}
@@ -89,16 +83,13 @@ function RightGroup(props: Props): JSX.Element {
             ) : null}
             {predictor.message ? (
                 <span>
-                    Status:
-                    {' '}
-                    {predictor.message}
+                    Status: {predictor.message}
                     <br />
                 </span>
             ) : null}
             {predictor.timeRemaining > 0 ? (
                 <span>
-                    Time Remaining:
-                    {' '}
+                    Time Remaining:{' '}
                     <Moment date={moment().add(-predictor.timeRemaining, 's')} format='hh:mm:ss' trim durationFromNow />
                     <br />
                 </span>
@@ -106,9 +97,7 @@ function RightGroup(props: Props): JSX.Element {
             {predictor.progress > 0 ? (
                 <span>
                     Progress:
-                    {predictor.progress.toFixed(1)}
-                    {' '}
-                    %
+                    {predictor.progress.toFixed(1)} %
                 </span>
             ) : null}
         </div>

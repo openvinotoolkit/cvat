@@ -11,9 +11,7 @@ import Timeline from 'antd/lib/timeline';
 import Dropdown from 'antd/lib/dropdown';
 
 import AnnotationMenuContainer from 'containers/annotation-page/top-bar/annotation-menu';
-import {
-    MainMenuIcon, SaveIcon, UndoIcon, RedoIcon,
-} from 'icons';
+import { MainMenuIcon, SaveIcon, UndoIcon, RedoIcon, ClowderSyncIcon } from 'icons';
 
 interface Props {
     saving: boolean;
@@ -24,6 +22,7 @@ interface Props {
     undoShortcut: string;
     redoShortcut: string;
     onSaveAnnotation(): void;
+    onClowderSync(): void;
     onUndoClick(): void;
     onRedoClick(): void;
 }
@@ -38,6 +37,7 @@ function LeftGroup(props: Props): JSX.Element {
         undoShortcut,
         redoShortcut,
         onSaveAnnotation,
+        onClowderSync,
         onUndoClick,
         onRedoClick,
     } = props;
@@ -65,6 +65,15 @@ function LeftGroup(props: Props): JSX.Element {
                         ))}
                     </Timeline>
                 </Modal>
+            </Button>
+            <Button
+                title='Export annotations to clowder'
+                type='link'
+                className='cvat-annotation-header-button'
+                onClick={onClowderSync}
+            >
+                <Icon component={ClowderSyncIcon} />
+                <span>Clowder Sync</span>
             </Button>
             <Button
                 title={`Undo: ${undoAction} ${undoShortcut}`}

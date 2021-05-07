@@ -478,3 +478,4 @@ CACHES = {
 
 USE_CACHE = True
 
+CLOWDER_API_ENDPOINT = 'https://simpl.syngentadigitalapps.com/clowder/api/'

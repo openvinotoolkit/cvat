@@ -18,6 +18,7 @@ import {
     searchAnnotationsAsync,
     searchEmptyFrameAsync,
     setForceExitAnnotationFlag as setForceExitAnnotationFlagAction,
+    syncJobTaskWithClowderAsync,
     switchPredictor as switchPredictorAction,
     getPredictionsAsync,
     showFilters as showFiltersAction,
@@ -60,6 +61,7 @@ interface DispatchToProps {
     onChangeFrame(frame: number, fillBuffer?: boolean, frameStep?: number): void;
     onSwitchPlay(playing: boolean): void;
     onSaveAnnotation(sessionInstance: any): void;
+    onClowderSync(sessionInstance: any): void;
     showStatistics(sessionInstance: any): void;
     showFilters(sessionInstance: any): void;
     undo(sessionInstance: any, frameNumber: any): void;
@@ -131,6 +133,9 @@ function mapDispatchToProps(dispatch: any): DispatchToProps {
         onSaveAnnotation(sessionInstance: any): void {
             dispatch(saveAnnotationsAsync(sessionInstance));
         },
+        onClowderSync(sessionInstance: any): void {
+            dispatch(syncJobTaskWithClowderAsync(sessionInstance));
+        },
         showStatistics(sessionInstance: any): void {
             dispatch(collectStatisticsAsync(sessionInstance));
             dispatch(showStatisticsAction(true));
@@ -187,9 +192,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     }
 
     public componentDidMount(): void {
-        const {
-            autoSaveInterval, history, jobInstance, setForceExitAnnotationFlag,
-        } = this.props;
+        const { autoSaveInterval, history, jobInstance, setForceExitAnnotationFlag } = this.props;
         this.autoSaveInterval = window.setInterval(this.autoSave.bind(this), autoSaveInterval);
 
         // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -269,9 +272,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     }
 
     private undo = (): void => {
-        const {
-            undo, jobInstance, frameNumber, canvasInstance,
-        } = this.props;
+        const { undo, jobInstance, frameNumber, canvasInstance } = this.props;
 
         if (canvasInstance.isAbleToChangeFrame()) {
             undo(jobInstance, frameNumber);
@@ -279,9 +280,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     };
 
     private redo = (): void => {
-        const {
-            redo, jobInstance, frameNumber, canvasInstance,
-        } = this.props;
+        const { redo, jobInstance, frameNumber, canvasInstance } = this.props;
 
         if (canvasInstance.isAbleToChangeFrame()) {
             redo(jobInstance, frameNumber);
@@ -301,9 +300,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     };
 
     private onSwitchPlay = (): void => {
-        const {
-            frameNumber, jobInstance, onSwitchPlay, playing,
-        } = this.props;
+        const { frameNumber, jobInstance, onSwitchPlay, playing } = this.props;
 
         if (playing) {
             onSwitchPlay(false);
@@ -313,9 +310,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     };
 
     private onFirstFrame = (): void => {
-        const {
-            frameNumber, jobInstance, playing, onSwitchPlay,
-        } = this.props;
+        const { frameNumber, jobInstance, playing, onSwitchPlay } = this.props;
 
         const newFrame = jobInstance.startFrame;
         if (newFrame !== frameNumber) {
@@ -327,9 +322,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     };
 
     private onBackward = (): void => {
-        const {
-            frameNumber, frameStep, jobInstance, playing, onSwitchPlay,
-        } = this.props;
+        const { frameNumber, frameStep, jobInstance, playing, onSwitchPlay } = this.props;
 
         const newFrame = Math.max(jobInstance.startFrame, frameNumber - frameStep);
         if (newFrame !== frameNumber) {
@@ -342,9 +335,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
 
     private onPrevFrame = (): void => {
         const { prevButtonType } = this.state;
-        const {
-            frameNumber, jobInstance, playing, onSwitchPlay,
-        } = this.props;
+        const { frameNumber, jobInstance, playing, onSwitchPlay } = this.props;
         const { startFrame } = jobInstance;
 
         const newFrame = Math.max(jobInstance.startFrame, frameNumber - 1);
@@ -365,9 +356,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
 
     private onNextFrame = (): void => {
         const { nextButtonType } = this.state;
-        const {
-            frameNumber, jobInstance, playing, onSwitchPlay,
-        } = this.props;
+        const { frameNumber, jobInstance, playing, onSwitchPlay } = this.props;
         const { stopFrame } = jobInstance;
 
         const newFrame = Math.min(jobInstance.stopFrame, frameNumber + 1);
@@ -387,9 +376,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     };
 
     private onForward = (): void => {
-        const {
-            frameNumber, frameStep, jobInstance, playing, onSwitchPlay,
-        } = this.props;
+        const { frameNumber, frameStep, jobInstance, playing, onSwitchPlay } = this.props;
 
         const newFrame = Math.min(jobInstance.stopFrame, frameNumber + frameStep);
         if (newFrame !== frameNumber) {
@@ -401,9 +388,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     };
 
     private onLastFrame = (): void => {
-        const {
-            frameNumber, jobInstance, playing, onSwitchPlay,
-        } = this.props;
+        const { frameNumber, jobInstance, playing, onSwitchPlay } = this.props;
 
         const newFrame = jobInstance.stopFrame;
         if (newFrame !== frameNumber) {
@@ -429,6 +414,11 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
     private onSaveAnnotation = (): void => {
         const { onSaveAnnotation, jobInstance } = this.props;
         onSaveAnnotation(jobInstance);
+    };
+
+    private onClowderSync = (): void => {
+        const { onClowderSync, jobInstance } = this.props;
+        onClowderSync(jobInstance);
     };
 
     private onChangePlayerSliderValue = (value: number): void => {
@@ -619,6 +609,7 @@ class AnnotationTopBarContainer extends React.PureComponent<Props, State> {
                     showFilters={this.showFilters}
                     onSwitchPlay={this.onSwitchPlay}
                     onSaveAnnotation={this.onSaveAnnotation}
+                    onClowderSync={this.onClowderSync}
                     onPrevFrame={this.onPrevFrame}
                     onNextFrame={this.onNextFrame}
                     onForward={this.onForward}

@@ -4,9 +4,7 @@
 
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-    LeftOutlined, RightOutlined, EyeInvisibleFilled, EyeOutlined,
-} from '@ant-design/icons';
+import { LeftOutlined, RightOutlined, EyeInvisibleFilled, EyeOutlined } from '@ant-design/icons';
 import Alert from 'antd/lib/alert';
 import { Row, Col } from 'antd/lib/grid';
 
@@ -26,28 +24,28 @@ export default function LabelsListComponent(): JSX.Element {
     const combinedIssues = activeReview ? issues.concat(activeReview.issues) : issues;
     const frames = combinedIssues.map((issue: any): number => issue.frame).sort((a: number, b: number) => +a - +b);
     const nearestLeft = frames.filter((_frame: number): boolean => _frame < frame).reverse()[0];
-    const dinamicLeftProps: any = Number.isInteger(nearestLeft) ?
-        {
-            onClick: () => dispatch(changeFrameAsync(nearestLeft)),
-        } :
-        {
-            style: {
-                pointerEvents: 'none',
-                opacity: 0.5,
-            },
-        };
+    const dinamicLeftProps: any = Number.isInteger(nearestLeft)
+        ? {
+              onClick: () => dispatch(changeFrameAsync(nearestLeft)),
+          }
+        : {
+              style: {
+                  pointerEvents: 'none',
+                  opacity: 0.5,
+              },
+          };
 
     const nearestRight = frames.filter((_frame: number): boolean => _frame > frame)[0];
-    const dinamicRightProps: any = Number.isInteger(nearestRight) ?
-        {
-            onClick: () => dispatch(changeFrameAsync(nearestRight)),
-        } :
-        {
-            style: {
-                pointerEvents: 'none',
-                opacity: 0.5,
-            },
-        };
+    const dinamicRightProps: any = Number.isInteger(nearestRight)
+        ? {
+              onClick: () => dispatch(changeFrameAsync(nearestRight)),
+          }
+        : {
+              style: {
+                  pointerEvents: 'none',
+                  opacity: 0.5,
+              },
+          };
 
     return (
         <div style={{ height: tabContentHeight }}>

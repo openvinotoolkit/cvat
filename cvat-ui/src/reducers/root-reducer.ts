@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2020-2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
 
@@ -17,6 +17,7 @@ import settingsReducer from './settings-reducer';
 import shortcutsReducer from './shortcuts-reducer';
 import userAgreementsReducer from './useragreements-reducer';
 import reviewReducer from './review-reducer';
+import clowderReducer from './clowder-reducer';
 
 export default function createRootReducer(): Reducer {
     return combineReducers({
@@ -34,5 +35,6 @@ export default function createRootReducer(): Reducer {
         shortcuts: shortcutsReducer,
         userAgreements: userAgreementsReducer,
         review: reviewReducer,
+        clowder: clowderReducer,
     });
 }
