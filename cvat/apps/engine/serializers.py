@@ -9,11 +9,10 @@ import shutil
 from rest_framework import serializers, exceptions
 from django.contrib.auth.models import User, Group
 
-
 from cvat.apps.dataset_manager.formats.utils import get_label_color
 from cvat.apps.engine import models
+from cvat.apps.engine.cloud_provider import get_cloud_storage_instance, Credentials
 from cvat.apps.engine.log import slogger
-
 
 class BasicUserSerializer(serializers.ModelSerializer):
     def validate(self, data):
@@ -273,12 +272,13 @@ class DataSerializer(serializers.ModelSerializer):
     remote_files = RemoteFileSerializer(many=True, default=[])
     use_cache = serializers.BooleanField(default=False)
     copy_data = serializers.BooleanField(default=False)
+    cloud_storage_id = serializers.IntegerField(write_only=True, allow_null=True, required=False)
 
     class Meta:
         model = models.Data
         fields = ('chunk_size', 'size', 'image_quality', 'start_frame', 'stop_frame', 'frame_filter',
             'compressed_chunk_type', 'original_chunk_type', 'client_files', 'server_files', 'remote_files', 'use_zip_chunks',
-            'use_cache', 'copy_data')
+            'use_cache', 'copy_data', 'cloud_storage_id',)
 
     # pylint: disable=no-self-use
     def validate_frame_filter(self, value):
@@ -707,3 +707,81 @@ class CombinedReviewSerializer(ReviewSerializer):
                 models.Comment.objects.create(**comment)
 
         return db_review
+
+class BaseCloudStorageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CloudStorage
+        exclude = ['credentials']
+
+class CloudStorageSerializer(serializers.ModelSerializer):
+    owner = BasicUserSerializer(required=False)
+    session_token = serializers.CharField(max_length=440, allow_blank=True, required=False)
+    key = serializers.CharField(max_length=20, allow_blank=True, required=False)
+    secret_key = serializers.CharField(max_length=40, allow_blank=True, required=False)
+    account_name = serializers.CharField(max_length=24, allow_blank=True, required=False)
+
+    class Meta:
+        model = models.CloudStorage
+        fields = (
+            'provider_type', 'resource', 'display_name', 'owner', 'credentials_type',
+            'created_date', 'updated_date', 'session_token', 'account_name', 'key',
+            'secret_key', 'specific_attributes', 'description'
+        )
+        read_only_fields = ('created_date', 'updated_date', 'owner')
+
+    def validate(self, attrs):
+        if attrs.get('provider_type') == models.CloudProviderChoice.AZURE_CONTAINER:
+            if not attrs.get('account_name', ''):
+                raise exceptions.PermissionDenied('Account name for Azure container was not specified')
+        return attrs
+
+    def create(self, validated_data):
+        provider_type = validated_data.get('provider_type')
+        should_be_created = validated_data.pop('should_be_created', None)
+        credentials = Credentials(
+            account_name=validated_data.pop('account_name', ''),
+            key=validated_data.pop('key', ''),
+            secret_key=validated_data.pop('secret_key', ''),
+            session_token=validated_data.pop('session_token', ''),
+            credentials_type = validated_data.get('credentials_type')
+        )
+        if should_be_created:
+            details = {
+                'resource': validated_data.get('resource'),
+                'credentials': credentials,
+                'specific_attributes': {
+                    item.split('=')[0].strip(): item.split('=')[1].strip()
+                        for item in validated_data.get('specific_attributes').split('&')
+                    } if len(validated_data.get('specific_attributes', ''))
+                        else dict()
+            }
+            storage = get_cloud_storage_instance(cloud_provider=provider_type, **details)
+            try:
+                storage.create()
+            except Exception as ex:
+                slogger.glob.warning("Failed with creating storage\n{}".format(str(ex)))
+                raise
+
+        db_storage = models.CloudStorage.objects.create(
+            credentials=credentials.convert_to_db(),
+            **validated_data
+        )
+        db_storage.save()
+        return db_storage
+
+    # pylint: disable=no-self-use
+    def update(self, instance, validated_data):
+        credentials = Credentials()
+        credentials.convert_from_db({
+            'type': instance.credentials_type,
+            'value': instance.credentials,
+        })
+        tmp = {k:v for k,v in validated_data.items() if k in {'key', 'secret_key', 'account_name', 'session_token', 'credentials_type'}}
+        credentials.mapping_with_new_values(tmp)
+        instance.credentials = credentials.convert_to_db()
+        instance.credentials_type = validated_data.get('credentials_type', instance.credentials_type)
+        instance.resource = validated_data.get('resource', instance.resource)
+        instance.display_name = validated_data.get('display_name', instance.display_name)
+
+        instance.save()
+        return instance

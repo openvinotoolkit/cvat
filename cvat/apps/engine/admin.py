@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: MIT
 
 from django.contrib import admin
-from .models import Task, Segment, Job, Label, AttributeSpec, Project
+from .models import Task, Segment, Job, Label, AttributeSpec, Project, CloudStorage
 
 class JobInline(admin.TabularInline):
     model = Job
     can_delete = False
 
     # Don't show extra lines to add an object
-    def has_add_permission(self, request, object=None):
+    def has_add_permission(self, request, obj):
         return False
 
 class SegmentInline(admin.TabularInline):
@@ -21,7 +21,7 @@ class SegmentInline(admin.TabularInline):
     can_delete = False
 
     # Don't show extra lines to add an object
-    def has_add_permission(self, request, object=None):
+    def has_add_permission(self, request, obj):
         return False
 
 
@@ -84,8 +84,20 @@ class TaskAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+class CloudStorageAdmin(admin.ModelAdmin):
+    date_hierarchy = 'updated_date'
+    readonly_fields = ('created_date', 'updated_date', 'provider_type')
+    list_display = ('__str__', 'owner', 'created_date', 'updated_date')
+    search_fields = ('provider_type', 'resource', 'owner__username', 'owner__first_name',
+        'owner__last_name', 'owner__email',)
+
+    empty_value_display = 'unknown'
+
+    def has_add_permission(self, request):
+        return False
 
 admin.site.register(Task, TaskAdmin)
 admin.site.register(Segment, SegmentAdmin)
 admin.site.register(Label, LabelAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(CloudStorage, CloudStorageAdmin)

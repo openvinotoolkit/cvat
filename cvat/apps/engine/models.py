@@ -68,7 +68,7 @@ class StorageMethodChoice(str, Enum):
         return self.value
 
 class StorageChoice(str, Enum):
-    #AWS_S3 = 'aws_s3_bucket'
+    CLOUD_STORAGE = 'cloud_storage'
     LOCAL = 'local'
     SHARE = 'share'
 
@@ -92,6 +92,7 @@ class Data(models.Model):
         default=DataChoice.IMAGESET)
     storage_method = models.CharField(max_length=15, choices=StorageMethodChoice.choices(), default=StorageMethodChoice.FILE_SYSTEM)
     storage = models.CharField(max_length=15, choices=StorageChoice.choices(), default=StorageChoice.LOCAL)
+    cloud_storage = models.ForeignKey('CloudStorage', on_delete=models.SET_NULL, null=True, related_name='data')
 
     class Meta:
         default_permissions = ()
@@ -535,3 +536,80 @@ class Comment(models.Model):
     message = models.TextField(default='')
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+
+class CloudProviderChoice(str, Enum):
+    AWS_S3 = 'AWS_S3_BUCKET'
+    AZURE_CONTAINER = 'AZURE_CONTAINER'
+    GOOGLE_DRIVE = 'GOOGLE_DRIVE'
+
+    @classmethod
+    def choices(cls):
+        return tuple((x.value, x.name) for x in cls)
+
+    @classmethod
+    def list(cls):
+        return list(map(lambda x: x.value, cls))
+
+    def __str__(self):
+        return self.value
+
+class CredentialsTypeChoice(str, Enum):
+    # ignore bandit issues because false positives
+    TEMP_KEY_SECRET_KEY_TOKEN_SET = 'TEMP_KEY_SECRET_KEY_TOKEN_SET' # nosec
+    ACCOUNT_NAME_TOKEN_PAIR = 'ACCOUNT_NAME_TOKEN_PAIR' # nosec
+    ANONYMOUS_ACCESS = 'ANONYMOUS_ACCESS'
+
+    @classmethod
+    def choices(cls):
+        return tuple((x.value, x.name) for x in cls)
+
+    @classmethod
+    def list(cls):
+        return list(map(lambda x: x.value, cls))
+
+    def __str__(self):
+        return self.value
+
+class CloudStorage(models.Model):
+    # restrictions:
+    # AWS bucket name, Azure container name - 63
+    # AWS access key id - 20
+    # AWS secret access key - 40
+    # AWS temporary session tocken - None
+    # The size of the security token that AWS STS API operations return is not fixed.
+    # We strongly recommend that you make no assumptions about the maximum size.
+    # The typical token size is less than 4096 bytes, but that can vary.
+    provider_type = models.CharField(max_length=20, choices=CloudProviderChoice.choices())
+    resource = models.CharField(max_length=63)
+    display_name = models.CharField(max_length=63, unique=True)
+    owner = models.ForeignKey(User, null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="cloud_storages")
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    credentials = models.CharField(max_length=500)
+    credentials_type = models.CharField(max_length=29, choices=CredentialsTypeChoice.choices())#auth_type
+    specific_attributes = models.CharField(max_length=50, blank=True)
+    description = models.TextField(default='')
+
+    class Meta:
+        default_permissions = ()
+        unique_together = (('provider_type', 'resource', 'credentials'),)
+
+    def __str__(self):
+        return "{} {} {}".format(self.provider_type, self.resource, self.id)
+
+    def get_storage_dirname(self):
+        return os.path.join(settings.CLOUD_STORAGE_ROOT, str(self.id))
+
+    def get_storage_logs_dirname(self):
+        return os.path.join(self.get_storage_dirname(), 'logs')
+
+    def get_log_path(self):
+        return os.path.join(self.get_storage_dirname(), "storage.log")
+
+    def get_specific_attributes(self):
+        attributes = self.specific_attributes.split('&')
+        return {
+            item.split('=')[0].strip(): item.split('=')[1].strip()
+                for item in attributes
+        } if len(attributes) else dict()

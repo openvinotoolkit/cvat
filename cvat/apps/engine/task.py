@@ -14,7 +14,8 @@ from urllib import request as urlrequest
 import requests
 
 from cvat.apps.engine.media_extractors import get_mime, MEDIA_TYPES, Mpeg4ChunkWriter, ZipChunkWriter, Mpeg4CompressedChunkWriter, ZipCompressedChunkWriter, ValidateDimension
-from cvat.apps.engine.models import DataChoice, StorageMethodChoice, StorageChoice, RelatedFile
+from cvat.apps.engine.models import (
+    DataChoice, StorageMethodChoice, StorageChoice, RelatedFile)
 from cvat.apps.engine.utils import av_scan_paths
 from cvat.apps.engine.models import DimensionType
 from utils.dataset_manifest import ImageManifestManager, VideoManifestManager
@@ -27,6 +28,7 @@ from distutils.dir_util import copy_tree
 
 from . import models
 from .log import slogger
+from .cloud_provider import get_cloud_storage_instance, Credentials
 
 ############################# Low Level server API
 
@@ -219,7 +221,8 @@ def _create_thread(tid, data):
     upload_dir = db_data.get_upload_dirname()
 
     if data['remote_files']:
-        data['remote_files'] = _download_data(data['remote_files'], upload_dir)
+        if db_data.storage != StorageChoice.CLOUD_STORAGE:
+            data['remote_files'] = _download_data(data['remote_files'], upload_dir)
 
     manifest_file = []
     media = _count_files(data, manifest_file)
@@ -231,8 +234,25 @@ def _create_thread(tid, data):
     if data['server_files']:
         if db_data.storage == StorageChoice.LOCAL:
             _copy_data_from_share(data['server_files'], upload_dir)
-        else:
+        elif db_data.storage == StorageChoice.SHARE:
             upload_dir = settings.SHARE_ROOT
+        else: # cloud storage
+            if not manifest_file: raise Exception('A manifest file not found')
+            db_cloud_storage = db_data.cloud_storage
+            credentials = Credentials()
+            credentials.convert_from_db({
+               'type': db_cloud_storage.credentials_type,
+               'value': db_cloud_storage.value,
+            })
+
+            details = {
+                'resource': db_cloud_storage.resource,
+                'credentials': credentials,
+                'specific_attributes': db_cloud_storage.get_specific_attributes()
+            }
+            cloud_storage_instance = get_cloud_storage_instance(cloud_provider=db_cloud_storage.provider_type, **details)
+            cloud_storage_instance.download_file(manifest_file[0], db_data.get_manifest_path())
+            cloud_storage_instance.download_file(media['image'][0], os.path.join(upload_dir, media['image'][0]))
 
     av_scan_paths(upload_dir)
 
@@ -314,7 +334,13 @@ def _create_thread(tid, data):
     # calculate chunk size if it isn't specified
     if db_data.chunk_size is None:
         if isinstance(compressed_chunk_writer, ZipCompressedChunkWriter):
-            w, h = extractor.get_image_size(0)
+            if not (db_data.storage == StorageChoice.CLOUD_STORAGE):
+                w, h = extractor.get_image_size(0)
+            else:
+                manifest = ImageManifestManager(db_data.get_manifest_path())
+                manifest.init_index()
+                img_properties = manifest[0]
+                w, h = img_properties['width'], img_properties['height']
             area = h * w
             db_data.chunk_size = max(2, min(72, 36 * 1920 * 1080 // area))
         else:
@@ -353,8 +379,8 @@ def _create_thread(tid, data):
                             manifest.validate_frame_numbers()
                             assert len(manifest) > 0, 'No key frames.'
 
-                            all_frames = manifest['properties']['length']
-                            video_size = manifest['properties']['resolution']
+                            all_frames = manifest.video_length
+                            video_size = manifest.video_resolution
                             manifest_is_prepared = True
                         except Exception as ex:
                             if os.path.exists(db_data.get_index_path()):
@@ -418,9 +444,10 @@ def _create_thread(tid, data):
                 for _, chunk_frames in itertools.groupby(extractor.frame_range, lambda x: next(counter) // db_data.chunk_size):
                     chunk_paths = [(extractor.get_path(i), i) for i in chunk_frames]
                     img_sizes = []
-
-                    for _, frame_id in chunk_paths:
+                    for abs_path, frame_id in chunk_paths:
                         properties = manifest[frame_id]
+                        assert abs_path.endswith(os.path.basename(f"{properties['name']}{properties['extension']}")), \
+                            'Uploaded files don`t mappimg with the uploaded manifest'
                         if db_task.dimension == DimensionType.DIM_2D:
                             resolution = (properties['width'], properties['height'])
                         else:

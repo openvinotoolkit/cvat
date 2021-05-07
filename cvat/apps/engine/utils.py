@@ -12,6 +12,7 @@ import traceback
 import subprocess
 import os
 from av import VideoFrame
+from PIL import Image
 
 from django.core.exceptions import ValidationError
 
@@ -95,4 +96,6 @@ def rotate_image(image, angle):
 def md5_hash(frame):
     if isinstance(frame, VideoFrame):
         frame = frame.to_image()
+    elif isinstance(frame, str):
+        frame = Image.open(frame, 'r')
     return hashlib.md5(frame.tobytes()).hexdigest() # nosec

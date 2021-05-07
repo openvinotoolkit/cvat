@@ -159,6 +159,10 @@ def is_comment_author(db_user, db_comment):
     has_rights = (db_comment.author == db_user)
     return has_rights
 
+@rules.predicate
+def is_cloud_storage_owner(db_user, db_storage):
+    return db_storage.owner == db_user
+
 # AUTH PERMISSIONS RULES
 rules.add_perm('engine.role.user', has_user_role)
 rules.add_perm('engine.role.admin', has_admin_role)
@@ -189,6 +193,9 @@ rules.add_perm('engine.issue.destroy', has_admin_role | is_issue_owner)
 
 rules.add_perm('engine.comment.change', has_admin_role | is_comment_author)
 
+
+rules.add_perm('engine.cloudstorage.create', has_admin_role | has_user_role)
+rules.add_perm('engine.cloudstorage.change', has_admin_role | is_cloud_storage_owner)
 
 class AdminRolePermission(BasePermission):
     # pylint: disable=no-self-use
@@ -329,3 +336,21 @@ class CommentChangePermission(BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user.has_perm('engine.comment.change', obj)
 
+class CloudStorageAccessPermission(BasePermission):
+    # pylint: disable=no-self-use
+    def has_object_permission(self, request, view, obj):
+        return request.user.has_perm("engine.cloudstorage.change", obj)
+
+class CloudStorageChangePermission(BasePermission):
+    # pylint: disable=no-self-use
+    def has_object_permission(self, request, view, obj):
+        return request.user.has_perm("engine.cloudstorage.change", obj)
+
+class CloudStorageGetQuerySetMixin(object):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        if has_admin_role(user) or self.detail:
+            return queryset
+        else:
+            return queryset.filter(owner=user)
